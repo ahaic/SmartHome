@@ -409,12 +409,12 @@ class Home extends Base
 		if(!empty($_POST)){
 			$sysInfo = unserialize(@file_get_contents(LIB.'config.qcms'));
 			$sysInfo['connect'] = md5(uniqid(rand(100,999)));
-			@file_put_contents(LIB.'config.qcms', serialize($sysInfo));
+			file_put_contents(LIB.'config.qcms', serialize($sysInfo));
 			$config = '';
 			if($_POST['dbDriver'] == '1'){
 				$link = @mysql_connect($_POST['mysqlHost'], $_POST['mysqlUsername'], $_POST['mysqlPassword']);
 				if (!$link) {
-					@mysql_close($link);
+					mysql_close($link);
 					echo '<script>alert("数据库连接失败");history.back();</script>';exit();
 				}
 				
