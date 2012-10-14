@@ -1,0 +1,41 @@
+/*PHPLite V1.5*/
+/*Now-Time:20110121*/
+body { background-repeat: repeat-x; margin: 10px; padding: 0px; background-color: #F5F5F5; }
+a:link { color: #000000; font-size: 12px; text-decoration: underline; }
+a:active { color: #000000; font-size: 12px; text-decoration: underline; }
+a:visited { color: #000000; font-size: 12px; text-decoration: underline; }
+a:hover { color: #000000; font-size: 12px; text-decoration: underline; }
+.copyright { display: block; font-size: 11px; color: #819AAD; background-color: #F5F9FD; margin: 0px; padding: 0px; border-width: 1px; border-color: #909FA4; border-style: solid; width: 100%; }
+.table { border-top-width: 1px; border-left-width: 1px; border-top-style: solid; border-left-style: solid; border-top-color: #cccccc; border-left-color: #cccccc; }
+.table2 { font-size: 12px; line-height: 25px; float: left; width: 100%; margin: 0px; padding: 0px; height: auto; background-color: #FFF; border-left-width: 1px; border-left-style: solid; border-left-color: #cccccc; }
+	.table2 ul li { margin: 0px; float: left; height: 25px; width: 100%; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; text-indent: 10px; }
+img { border: 0; }
+FORM { margin: 0; padding: 0; }
+#cont table { border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; margin: 0px; padding: 0px; }
+.table2 ul { margin: 0px; padding: 0px; }
+.kuang { width: 456px; height: 20px; font-size: 12px; line-height: 18px; float: left; background-color: #FFF; border: 1px solid #9999CC; margin: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 5px; }
+#cont { border: 1px solid #CCC; margin: 0px; padding: 0px; float: left; height: auto; width: auto; }
+	#cont table tr td { margin: 0px; padding: 0px; text-indent: 0px; border-top-style: none; border-right-style: none; border-bottom-style: none; border-left-style: none; }
+.kuang1 { width: 456px; height: 20px; font-size: 12px; line-height: 18px; float: left; border: 2px solid #666699; margin: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 5px; }
+.kuangy { width: 200px; height: 20px; font-size: 12px; line-height: 18px; float: left; background-color: #FFF; text-indent: 5px; padding: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 5px; border: 1px solid #9999CC; }
+.kuangy1 { width: 200px; height: 20px; font-size: 12px; line-height: 18px; float: left; border: 2px solid #666699; text-indent: 5px; padding: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 5px; }
+.kuangx { width: 456px; height: 120px; font-size: 12px; line-height: 20px; float: left; background-color: #FFF; text-indent: 5px; padding: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 5px; border: 1px solid #9999CC; }
+.kuangx1 { width: 456px; height: 120px; font-size: 12px; line-height: 20px; float: left; border: 2px solid #666699; text-indent: 5px; padding: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 5px; }
+textarea { font-size: 12px; margin: 0px; padding: 0px; }
+td,font { font: 12px verdana,arial,sans-serif; }
+.bot { margin: 0px; padding: 0px; border: 1px solid #668294; font-size: 12px; line-height: 20px; height: 20px; width: 60px; }
+.title { font: 14px verdana,geneva,arial,sans-serif; color: #526952; }
+.tdrow1 { border-bottom: 1px solid #D1DCEB; border-right: 1px solid #D1DCEB; border-top: 1px solid #FFFFFF; border-left: 1px solid #FFFFFF; font-family: verdana; font-size: 12px; color: #7A9ABC; font-weight: bold; }
+.tdrow2 { background-color: #EDF1F6; border-bottom: 1px solid #D1DCEB; border-right: 1px solid #D1DCEB; border-top: 1px solid #FFFFFF; border-left: 1px solid #FFFFFF; }
+.tdrow3 { background-color: #F5FAFF; border-bottom: 1px solid #D1DCEB; border-right: 1px solid #D1DCEB; border-top: 1px solid #FFFFFF; border-left: 1px solid #FFFFFF; }
+.pagetitle { color: #464646; font-size: 12px; font-family: verdana; text-align: left; font-weight: bold; line-height: 22px; padding-top: 5px; margin: 0px; padding-left: 10px; }
+.ohblue { color: #0000FF; font-weight: bold; }
+.ohred { color: #FF0000; font-weight: bold; }
+.weentech { color: #0000FF; }
+.ohgreen { color: #33CC00; }
+.oh_red { color: #FF0000; }
+.pages_nav a { background: #cad9ea; padding-top: 5px; padding-bottom: 5px; padding-right: 7px; padding-left: 7px; line-height: 24px; }
+.pages_nav STRONG { font-weight: bold; background: #BBBBBB; color: #CC0000; padding-top: 5px; padding-bottom: 5px; padding-right: 7px; padding-left: 7px; line-height: 24px; }
+/*****************/
+.long { margin: 0px; padding: 0px; }
+#tableTd { margin: 0px; padding: 0px; }

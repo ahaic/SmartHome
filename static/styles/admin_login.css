@@ -1,0 +1,22 @@
+@charset "utf-8";
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre, 
+form,fieldset,input,textarea,p,blockquote,th,td { padding:0; margin:0; }
+body { background:#E4E4E4; color:#000; font-size:12px; font-family:Helvetica, Arial, sans-serif;}
+ol,ul { list-style:none;}
+img { border:none;}
+h1,h2,h3,h4,h5,h6 { font-weight: normal; font-size:100%;} 
+input { border:#CCC solid 1px;  font-family:Helvetica, Arial, sans-serif; padding:4px;}
+#login-box #logo {
+	margin-bottom:10px;
+	width:430px;
+	height:52px;
+	text-align: right;
+}
+#login-box #login_from { line-height:2em; margin-bottom:10px;}
+#login-box #login_from  #username,#password,#code { font-size:18px; width:100%;}
+#login-box #login { background:#2D7BB2; border:none; color:#FFF; width:54px; line-height:1.5em;}
+#login-box #login:hover { background:#5B605D; color:#FFF; text-decoration:none;}
+#login-box #inback { margin-top:}
+input:hover { border:#276fa2 solid 1px;
+background-color:#EDF4FE;}
+
