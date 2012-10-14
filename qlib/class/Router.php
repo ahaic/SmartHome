@@ -4,8 +4,6 @@ class Router
 	private static $s_url = '/';
 	private $_default;
 	private static $s_instance;	
-	public static $s_controller;
-	public static $s_method;
 	
 	function __construct()
 	{
@@ -93,8 +91,6 @@ class Router
 		require $controller_arr['url'];
 		if(method_exists($controller_arr['name'], $controller_arr['method']))
 		{
-			self::$s_controller = $controller_arr['name'];
-			self::$s_method = $controller_arr['method'];
 			Base::insert_func_array($controller_arr);
 		}
 		else

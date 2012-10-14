@@ -1,39 +1,29 @@
-<!DOCTYPE html>
-<html lang="en"><head>
-<title>搜索</title>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
- <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-<!--[if lt IE 9]>
-  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-<![endif]-->
-<link href='{qcms:css_path}bootstrap.min.css' rel='stylesheet' type='text/css' />
-<link href='{qcms:css_path}bootstrap-responsive.min.css' rel='stylesheet' type='text/css' />
-<style>
-.line_heighe{ line-height:25px;}
-</style>
-
+<meta http-equiv="Content-Language" content="UTF-8" />
+<meta name="robots" content="all" />
+<meta name="author" content="" />
+<meta name="Copyright" content="" />
+<meta name="keywords" content="" />
+<meta name="description" content="" />
+<meta name="generator" content="" />
+<title>QCMS PHPLite 官方标准模板</title>
+<link rel="stylesheet" type="text/css" media="all" href="{qcms:path}static/styles/main.css" />
+<script type="text/javascript" src="{qcms:js_path}jquery.js"></script>
+<script>
+$(function(){
+	$('#search').click(function(){
+		window.location.href='{qcms:path}home/search&keyword='+ $('#keyword').val() +'';
+	})
+})
+</script>
 </head>
 <body>
-{include:header}
-<div class="container container-fluid" style="max-width:1080px">
-  <div class="row-fluid">
-    <div class="span3">
-      {include:lefter}
-    </div>
-    <div class="span9">
-      <p><h3>搜索 "{qcms:key}" 的结果</h3></p>
-      	<table class="table">
-        {list row=20 page=1 key={qcms:key}}
-        <tr>
-        <td><span class="pull-right"><em>{field:time}</em></span><a href="{field:url}">{field:title}</a></td>
-        </tr>
-        {/list}
-        <tr><td>{page}</td></tr>
-		</table>
-    </div>
-  </div>
-  {include:footer}
-
+<input name="keyword" type="text" id="keyword" /><input name="" type="button" value="搜索" id="search" />
+{list row=20 page=1 key={qcms:key}}
+<li><a href="{field:url}">{field:title}</a>&nbsp;&nbsp;&nbsp;&nbsp;{field:time}
+{/list}
 </body>
 </html>

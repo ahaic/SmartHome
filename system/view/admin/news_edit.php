@@ -1,15 +1,10 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
- <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <style type="text/css">
 <!--
 .btnCode {
-	background:transparent url(<?=IMG_PATH?>code.gif) no-repeat 16px 16px;
+	background:transparent url(static/images/code.gif) no-repeat 16px 16px;
 	background-position:2px 2px;
 }
 .plus {
@@ -20,36 +15,41 @@ pre{margin-left:2em;border-left:3px solid #CCC;padding:0 1em;}
 -->
 </style>
 <?
+$this->load_js(array('jquery', 'xheditor-zh-cn.min', 'ajaxupload', 'swfupload', 'swfupload.queue', 'fileprogress', 'handlers','prettify/prettify'));
+$this->load_css(array('admin_style','prettify/prettify'));
+$td_style = "style='font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;'";
+$input_style = 'style="width:200px;" class="kuang" onBlur="this.className=\'kuang\'" onFocus="this.className=\'kuang1\'"';
 $editor = 'tools:\'Bold,Italic,Underline,Strikethrough,FontColor,BackColor,|,SelectAll,Removeformat,Align,List,|,Link,Unlink,Img,Flash,Media,Table,|,Fontface,FontSize,|,test4,test2,Source,\',upImgUrl:\''.url(array('admin', 'ajax_upload')).'\',upImgExt:\'jpg,jpeg,gif,png\'';
-$this->load_css(array('bootstrap.min', 'bootstrap-responsive.min'));
-$this->load_js(array('jquery', 'bootstrap-dropdown', 'xheditor-zh-cn.min', 'ajaxupload', 'swfupload', 'swfupload.queue', 'fileprogress', 'handlers', 'prettify/prettify'));
+$nfield = unserialize($rs[0]['nfield']);
 ?>
 <script>
-$('.dropdown-toggle').dropdown()
-
+prettyPrint();
 var allPlugin={
-         test4:{c:'btnCode',t:'<?=$this->p_lang['insert'].$this->p_lang['code']?>',s:'ctrl+4',h:1,e:function(){
+         test4:{c:'btnCode',t:'插入代码',s:'ctrl+4',h:1,e:function(){
             var _this=this;
-			var htmlCode='<div><select id="xheCodeType"><option value="html">HTML/XML</option><option value="javascript">JavaScript</option><option value="css">CSS</option><option value="php">PHP</option><option value="csharp">C#</option><option value="cpp">C++</option><option value="java">Java</option><option value="perl">Perl</option><option value="python">Python</option><option value="ruby">Ruby</option><option value="vb">Visual Basic</option><option value="delphi">Delphi</option><option value="as3">Action Script 3</option><option value="sql">SQL</option><option value="plain">其它</option></select></div><div><textarea id="xheCodeValue" wrap="soft" spellcheck="false" style="width:300px;height:100px;" /></div><div style="text-align:right;"><input type="button" id="xheSave" value="<?=$this->p_lang['sure']?>" /></div>';
+			var htmlCode='<div><select id="xheCodeType"><option value="html">HTML/XML</option><option value="javascript">JavaScript</option><option value="css">CSS</option><option value="php">PHP</option><option value="csharp">C#</option><option value="cpp">C++</option><option value="java">Java</option><option value="perl">Perl</option><option value="python">Python</option><option value="ruby">Ruby</option><option value="vb">Visual Basic</option><option value="delphi">Delphi</option><option value="as3">Action Script 3</option><option value="sql">SQL</option><option value="plain">其它</option></select></div><div><textarea id="xheCodeValue" wrap="soft" spellcheck="false" style="width:300px;height:100px;" /></div><div style="text-align:right;"><input type="button" id="xheSave" value="确定" /></div>';
 			var jCode=$(htmlCode),jType=$('#xheCodeType',jCode),jValue=$('#xheCodeValue',jCode),jSave=$('#xheSave',jCode);
 			jSave.click(function(){
 				_this.loadBookmark();
-				_this.pasteHTML('<pre class="prettyprint lang-'+jType.val()+';">\r\n'+_this.domEncode(jValue.val())+'\r\n</pre>');
+				_this.pasteHTML('<pre class=prettyprint lang-'+jType.val()+';">\r\n'+_this.domEncode(jValue.val())+'\r\n</pre>');
 				_this.hidePanel();
 				return false;	
 			});
 			_this.saveBookmark();
 			_this.showDialog(jCode);
 			
+            //var jTest=$('<div style="padding:5px;">测试showPanel</div>');
+            //_this.showPanel(jTest);
         }},
-		test2:{c:'plus',t:'<?=$this->p_lang['insert'].$this->p_lang['page']?>',s:'ctrl+4',e:function(){
+		test2:{c:'plus',t:'插入分页',s:'ctrl+4',e:function(){
 			var _this=this;
 			_this.pasteHTML('[page]');
 		}}
     };
-
-$(document).ready(function(){	
-		var button = $('#upload_input'), interval;			
+</script>
+<script>
+$(document).ready(function(){
+		var button = $('#upload_input'), interval;		
 		new AjaxUpload(button, {
 			action: '<?=url(array('admin', 'ajax_upload'))?>', 
 			name: 'filedata',
@@ -67,18 +67,45 @@ $(document).ready(function(){
 				this.enable();				
 				$('#nimg').val(json_str['msg']);		
 			}
-		});		
+		});
 		$('#outlink').click(function(){
-			if($('#outlink').attr('checked') == 'checked'){
-				$('.out_link').css('display', 'block');
-				$('.not_out_link').css('display', 'none');
+			if($('#outlink').attr('checked') == true){
+				$('#out_link').css('display', 'block');
+				$('#not_out_link').css('display', 'none');
 			}else{
-				$('.out_link').css('display', 'none');
-				$('.not_out_link').css('display', 'block');
+				$('#out_link').css('display', 'none');
+				$('#not_out_link').css('display', 'block');
 			}
 		})
-		
-});
+	});
+	
+function add()
+{
+	var $table=$("#tab tr");
+	var len=$table.length;
+	$("#tab").append("<tr id="+(len+1)+"><td <?=$td_style?>><?=$this->p_lang['field'].$this->p_lang['explanation']?></td><td <?=$td_style?>><input name='field_info["+len+"]' type='text' id='field_info["+len+"]' value='' class='kuangy' /> <font color='#ff0000'>*</font> </td><td <?=$td_style?>><?=$this->p_lang['field'].$this->p_lang['name']?></td><td <?=$td_style?>><input name='field_name["+len+"]' type='text' id='field_name["+len+"]' value='' class='kuangy' /> <font color='#ff0000'>*</font> </td><td <?=$td_style?>><input name='' type='button' value='<?=$this->p_lang['delete']?>' onClick='del("+(len+1)+")' style='border:1px #000000 solid;vertical-align:middle;height:25px'></td></tr>");　　　
+}
+function del(i)
+{
+	var $table=$("#tab tr");
+	var len=$table.length;
+	$("tr[id='"+i+"']").remove();　
+}
+	
+function on_link()
+{
+
+	if($('#clinkture').attr('checked') == true) 
+	{
+		$('#out_link').show();	
+		$('#not_out_link').hide();
+	}
+	else
+	{
+		$('#out_link').hide();	
+		$('#not_out_link').show();
+	}
+}	
 
 function cate_channge()
 {
@@ -87,34 +114,26 @@ function cate_channge()
 </script>
 </head>
 <body>
-<?
-  $this->load_php('admin/top');
-?>
-<div class="container-fluid">
-<div class="row-fluid">
-  <div class="span2">
-  <?
-  $this->load_php('admin/menu');
-  ?>
-  </div>
-  <div class="span10">
-        <p><h2><?=$this->p_lang['news'].$this->p_lang['add']?></h2></p>
-        <form action="" method="post">
+<form action="" method="post">
+<table width="100%" border="0"  cellpadding="0" cellspacing="0" style="background-image:url(<?=IMG_PATH?>bg3.gif);  background-repeat:repeat-x;  padding-left:   2px; padding-right:  2px; padding-bottom: 2px; margin-top:5px;  border:#dfdfdf solid 1px;">
+  <tr>
+    <td align="center"><p class="pagetitle"><?=$title?></p></td>
+  </tr>
+</table>
+<br />
+<table class="table" width="100%" border="0" cellspacing="0">
+<tr bgcolor="#f9f9f9"><td <?=$td_style?> width="110"><?=$this->p_lang['select'].$this->p_lang['class']?></td><td  <?=$td_style?>><?=$cate_str?></td></tr>
+<tr bgcolor="#f9f9f9"><td <?=$td_style?> width="110"><?=$this->p_lang['content'].$this->p_lang['title']?></td><td  <?=$td_style?>><input type="text" name="ntitle" id="ntitle" <?=$input_style?> value="<?=$rs[0]['ntitle']?>"> <input name="nsort" type="text" id="nsort" style="width:30px" value="<?=$rs[0]['nsort']?>">&nbsp;<?=$this->p_lang['sort']?><input name="outlink" type="checkbox" id="outlink" value="1" <?=empty($rs[0]['outlink']) ? '' : 'checked="checked"'?>>&nbsp;<?=$this->p_lang['outlink']?></td></tr></table>
+<table class="table2" width="100%" border="0" cellspacing="0" id="out_link" <?=empty($rs[0]['outlink']) ? 'style="display:none"' : ''?>>
+  <tr bgcolor="#f9f9f9"><td <?=$td_style?> width="110"><?=$this->p_lang['class'].$this->p_lang['outlink']?></td><td  <?=$td_style?>><input type="text" name="clink" id="clink" <?=$input_style?> value="<?=empty($rs[0]['outlink']) ? '' : $rs[0]['npy']?>"></td></tr>
+  </table>
+<table class="table2" id="not_out_link" width="100%" border="0" cellspacing="0" <?=empty($rs[0]['outlink']) ? '' : 'style="display:none"'?>>
+<tr bgcolor="#f9f9f9"><td <?=$td_style?> width="110"><?=$this->p_lang['content'].$this->p_lang['keyword']?></td><td  <?=$td_style?>><input type="text" name="nkeyword" id="nkeyword" <?=$input_style?> value="<?=$rs[0]['nkeyword']?>"></td></tr>
+<tr bgcolor="#f9f9f9"><td <?=$td_style?> width="110"><?=$this->p_lang['content'].$this->p_lang['pic']?></td><td  <?=$td_style?>><input type="text" name="nimg" id="nimg" <?=$input_style?> value="<?=$rs[0]['nimg']?>">
+  <input type="button" value="<?=$this->p_lang['upload']?>" id="upload_input"><input type="file" name="file_input" id="file_input" style="display:none"></td></tr>
 
-<table class="table">
-<tr><td class="span2"><?=$this->p_lang['select'].$this->p_lang['classify']?></td><td><?=$cate_str?></td></tr>
-<tr><td><?=$this->p_lang['content'].$this->p_lang['name']?></td><td><input type="text" name="ntitle" id="ntitle" value="<?=$rs[0]['ntitle']?>"> <input name="nsort" type="text" id="nsort" style="width:15px" value="<?=$rs[0]['nsort']?>">&nbsp;<?=$this->p_lang['sort']?>
-
-  <input name="outlink" type="checkbox" id="outlink" value="1" <?=empty($rs[0]['outlink']) ? '' : 'checked="checked"'?>>&nbsp;<?=$this->p_lang['outlink']?>
-</td></tr>
-  <tr class="out_link" style="display:none"><td><?=$this->p_lang['outlink'].$this->p_lang['address']?></td><td><input type="text" name="clink" id="clink" value="<?=empty($rs[0]['outlink']) ? '' : $rs[0]['npy']?>"></td></tr>
-
-<tr class="not_out_link"><td><?=$this->p_lang['content'].$this->p_lang['keyword']?></td><td><input type="text" name="nkeyword" id="nkeyword" value="<?=$rs[0]['nkeyword']?>" ></td></tr>
-<tr class="not_out_link"><td><?=$this->p_lang['content'].$this->p_lang['pic']?></td><td><input type="text" name="nimg" id="nimg" value="<?=$rs[0]['nimg']?>">
-  <input type="button" value="<?=$this->p_lang['upload']?>" id="upload_input" onClick="upload('nimg')" class="btn-small btn-inverse"></td></tr>
-
-<tr class="not_out_link"><td><?=$this->p_lang['content']?></td><td><textarea name="ncontent" id="ncontent" style="width:600px; height:400px" class="xheditor {skin:'nostyle',plugins:allPlugin,loadCSS:'<style>pre{margin-left:2em;border-left:3px solid #CCC;padding:0 1em;}</style>',forcePtag:false,<?=$editor?>}"><?=htmlentities($rs[0]['ncontent'], ENT_QUOTES, 'UTF-8')?></textarea></td></tr>
-<tr class="not_out_link"><td><?=$this->p_lang['content'].$this->p_lang['time']?></td><td><input type="text" name="ntime" id="ntime" value="<?=$rs[0]['ntime']?>"></td></tr>
+<tr bgcolor="#f9f9f9"><td <?=$td_style?> width="110"><?=$this->p_lang['content']?></td><td  <?=$td_style?>><textarea name="ncontent" id="ncontent" style="width:600px; height:400px" onBlur="this.className='kuang'" class="xheditor {skin:'nostyle',plugins:allPlugin,loadCSS:'<style>pre{margin-left:2em;border-left:3px solid #CCC;padding:0 1em;}</style>',forcePtag:false,<?=$editor?>}"><?=htmlentities($rs[0]['ncontent'], ENT_QUOTES, 'UTF-8')?></textarea></td></tr>
+<tr bgcolor="#f9f9f9"><td <?=$td_style?> width="110"><?=$this->p_lang['content'].$this->p_lang['time']?></td><td  <?=$td_style?>><input type="text" name="ntime" id="ntime" <?=$input_style?> value="<?=$rs[0]['ntime']?>"></td></tr>
 <?
 $field_arr = @unserialize($rs[0]['nfield']);
 if(!empty($cfield))
@@ -199,7 +218,7 @@ window.onload = function() {
 		button_width: "100px",
 		button_height: "25",
 		button_placeholder_id: "spanButtonPlaceHolder",
-		button_text: '<span class="theFont"><?=$this->p_lang['please'].$this->p_lang['select'].$this->p_lang['file']?></span>',
+		button_text: '<span class="theFont">请选择文件</span>',
 		button_text_style: ".theFont {font-size: 12px; border:1px solid #000000; color:#ff2200; font-weight:bold;}",
 		button_text_left_padding: 12,
 		button_text_top_padding: 3,
@@ -226,10 +245,10 @@ function get_pic(){
 </script>
 
 <tr bgcolor="#f9f9f9">
-	<td <?=$td_style?>><?=$this->p_lang['batch'].$this->p_lang['upload']?></td>
+	<td <?=$td_style?>>批量上传：</td>
 	<td <?=$td_style?>>
 		<span id="spanButtonPlaceHolder" style="font-size: 12px;float: left;height: 100px;width: 100px;"></span>
-		<div class="fieldset flash" id="fsUploadProgress"><strong class="legend"><?=$this->p_lang['upload'].$this->p_lang['queue']?></strong><strong id="divStatus">0<?=$this->p_lang['upload'].$this->p_lang['file']?></strong></div>		<input id="btnCancel" type="button" value="<?=$this->p_lang['cancel'].$this->p_lang['upload'].$this->p_lang['queue']?>" onClick="swfu.cancelQueue();" disabled="disabled" style="float:left; margin-left: 2px; font-size: 12px;" />
+		<div class="fieldset flash" id="fsUploadProgress"><strong class="legend">上传队列：</strong><strong id="divStatus">0个上传文件</strong></div>		<input id="btnCancel" type="button" value="取消所有上传的文件" onClick="swfu.cancelQueue();" disabled="disabled" style="float:left; margin-left: 2px; font-size: 12px;" />
         <input type="hidden" <?=$input_style?> name="nfield[<?=$val['field_name']?>]" id="nfield_<?=$val['field_name']?>" value="<?=$field_arr[$val['field_name']]?>">
 	</td>
 </tr>
@@ -241,15 +260,17 @@ function get_pic(){
 	}
 }
 ?>
-<tr>
-  <td colspan="5" align="center"><button type="submit" class="btn btn-primary btn-large" ><?=$this->p_lang['save']?></button>&nbsp;&nbsp;
-            <button class="btn btn-large" type="reset"><?=$this->p_lang['cancel']?></button></td></tr>
+</table>
+<table class="table2" width="100%" border="0" cellspacing="0" id="tab"></table>
+<table class="table2" width="100%" border="0" cellspacing="0">
+<tr bgcolor="#f9f9f9">
+  <td colspan="5" <?=$td_style?> align="center"><input type="submit" value="<?=$this->p_lang['submit']?>" style="border:1px #000000 solid;vertical-align:middle;height:25px"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="reset" name="button2" id="button2" value="<?=$this->p_lang['reset']?>" style="border:1px #000000 solid;vertical-align:middle;height:25px"/></td></tr>
 </table></form>
-  </div>
-
-</div></div>
- <?
-  $this->load_php('admin/footer');
+<br />
+<?
+$this->load_php('admin/footer');
 ?>
+<script type="text/javascript">prettyPrint();</script>
 </body>
 </html>

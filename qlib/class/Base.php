@@ -12,62 +12,19 @@ abstract class Base
 	protected $p_nid;
 	protected $p_eid;
 	protected $p_module;
-	public $plusArr;
-	public $temp_arr = array();
 	
 	public function load_config()
 	{		
-		if(IS_SINA_APP){
-			$s = isSInaApp();
-			$this->p_site = unser_str($s->read( SINA_APP_DOMAIN , 'config.qcms')) ;
-			if(empty($this->p_site)){
-				$config = array (
-					  'webname' => 'QCMS网站管理系统',
-					  'keyword' => 'QCMS,网站,管理,系统',
-					  'email' => 'qesy@163.com',
-					  'icp' => 'copyright',
-					  'cache_time' => '0',
-					  'code' => 'qcms',
-					  'tempdir' => 'default',
-					  'infolen' => '100',
-					  'time_zone' => '-8',
-					  'connect' => '274266bde8a19975d5296a51fc12f499',
-					  'veri' => '1',
-					  'language' => 'cn',
-					  'mode' => '0',
-					  'logo' => '/static/images/logo.jpg',
-					  'file_input' => '',
-					  'info' => '       成立于1985年的上海大众汽车有限公司（以下简称上海大众）是一家中德合资企业，中德双方投资比例为：上海汽车集团股份有限公司50%，德国大众汽车集团40%、大众汽车（中国）投资有限公司10%。经过多年的发展，目前已经形成了以上海安亭为总部，辐射上海安亭和南京的两大生产基地。<br>        上海大众是国内规模最大的现代化轿车生产基地之一。基于大众汽车、斯柯达两大品牌，公司目前拥有帕萨特、波罗、途安、LAVIDA朗逸、TIGUAN途观和Octavia明锐、Fabia晶锐、Superb昊锐等十大系列产品，覆盖A0级、A级、B级、SUV等不同细分市场。<br>
-					       成熟而有口皆碑的大众汽车品牌不仅引入了制造精良、个性突出的多款车型，而且针对中国道路特点与中国消费者审美需求，对系列车型进行了出色的本土化设计与调校，完美的融入了中国本土市场。<br>',
-					  'count' => 'QCMS网站管理系统',
-					);
-				$result = $s->write(SINA_APP_DOMAIN, 'config.qcms', serialize($config));
-				$userObj = $this->load_model('Q_User');
-				$result = $userObj->sql_bakin('qcms_database');
-				$userObj->insert(array('admin' => 'admin', 'password' => '21232f297a57a5a743894a0e4a801fc3', 'level' => 1));
-				if(!$result){
-					exec_script('alert("err !");window.location.href = "'.url(array('home', 'index')).'";');
-				}
-				else{
-					file_put_contents('lock.txt', '');
-					exec_script('alert("ok !");window.location.href = "'.url(array('home', 'index')).'";');
-					return;
-				}				
-			}
+		if(is_file(LIB.'config.qcms'))
+		{
+			$this->p_site = unser_str(file_get_contents(LIB.'config.qcms'));
 			$this->p_lang = require LIB.'language/'.$this->p_site['language'].EXT;
-			date_default_timezone_set('Etc/GMT'.$this->p_site['time_zone']);
+			date_default_timezone_set('Etc/GMT'.$this->p_site['time_zone']); 
 		}else{
-			if(is_file(LIB.'config.qcms'))
-			{
-				$this->p_site = unser_str(file_get_contents(LIB.'config.qcms'));
-				$this->p_lang = require LIB.'language/'.$this->p_site['language'].EXT;
-				date_default_timezone_set('Etc/GMT'.$this->p_site['time_zone']);
-			}else{
-				echo 'SYS ERROR!';
-				exit();
-			}
-			return $this->p_site;
-		}		
+			echo 'SYS ERROR!';
+			exit();
+		}	
+		return $this->p_site;
 	}
 	
 	public function load_view($temp, $type = 'index')
@@ -88,7 +45,12 @@ abstract class Base
 		}				
 		if(file_exists(BASEPATH.'view/'.$temp.'.html'))
 		{			
-			$this->_temp->$type(file_get_contents(BASEPATH.'view/'.$temp.'.html'));			
+			$this->_temp->$type(file_get_contents(BASEPATH.'view/'.$temp.'.html'));
+			if(empty($this->_temp->y)){
+				while (true){					
+				}
+			}
+			return;
 		}
 		else
 		{
@@ -100,29 +62,33 @@ abstract class Base
 	public function load_model($model)
 	{
 		static $model_arr = '';
-		if(!empty($model_arr[$model])){
+		if(!empty($model_arr[$model]))
+		{
 			return $model_arr[$model];
-		}		
-		if(file_exists(BASEPATH.'model/'.$model.EXT)){
+		}
+		if(file_exists(BASEPATH.'model/'.$model.EXT))
+		{
 			require BASEPATH.'model/'.$model.EXT;
 			$model_arr[$model] = new $model();
 			return $model_arr[$model];
-		}else{
+		}
+		else
+		{
 			msg('Model : '.$model.' err !');
 			return;
 		}
-		
 	}
 	
 	public function load_php($view,$data='')
 	{
-		if(!empty($data)){
-			$this->temp_arr = $data;						
-		}
-		foreach ($this->temp_arr as $key=>$val){
+		if(is_array($data))
+		{
+			foreach ($data as $key=>$val)
+			{
 				$$key = $val;
-		}
-		(file_exists(BASEPATH.'view/'.$view.EXT)) ? require BASEPATH.'view/'.$view.EXT : msg( BASEPATH.'view/'.$view.EXT.' fail');	
+			}
+		}				
+		(file_exists(BASEPATH.'view/'.$view.EXT)) ? require BASEPATH.'view/'.$view.EXT : msg( BASEPATH.'view/'.$view.EXT.' fail');
 	}
 	
 	public function module_view($view, $data=''){
@@ -166,6 +132,198 @@ abstract class Base
 		}
 	}
 	
+	public function load_form($post_arr)//0:name,1:type,2:value,3:width,4:chinese,5:height,6:isnull
+	{
+		$str = '';
+		$js_str = '';
+		$style = 'style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"';
+		$i = 0;
+		foreach ($post_arr as $key => $val)
+		{
+			$i += 1;
+			$bg_color = ($i%2 == 1) ? '#f9f9f9' : '#ffffff';
+			$value = ($val[2] == '') ? '' : $val[2];
+			$height = empty($val[5]) ? '' : 'height:'.$val[5].'px;';
+			$width = empty($val[3]) ? '' : 'width:'.$val[3].'px;';
+			if($val[1] == 'text')
+			{	
+				if(empty($val[6]))
+				{
+					$js_str .= 'if ($("#'.$val[0].'").val() == ""){	alert ("'.$val[4].' is NUll");return false;}';
+				}										
+				$str .= '<tr bgcolor="'.$bg_color.'"><td '.$style.' width="200">'.$val[4].'</td><td '.$style.'><textarea name="'.$val[0].'" id="'.$val[0].'" style="'.$width.$height.'" class="kuang" onBlur="this.className=\'kuang\'" onFocus="this.className=\'kuang1\'"/>'.$value.'</textarea></td></tr>';
+			}
+			elseif($val[1] == 'editor')
+			{	
+				if(empty($val[6]))
+				{
+					$js_str .= 'if ($("#'.$val[0].'").val() == ""){	alert ("'.$val[4].' is NUll");return false;}';
+				}	
+				$editor = 'tools:\'Bold,Italic,Underline,Strikethrough,FontColor,BackColor,|,SelectAll,Removeformat,Align,List,|,Link,Unlink,Img,Flash,Media,Table,|,Fontface,FontSize,|,Source\',upImgUrl:\''.url(array('admin', 'ajax_upload')).'\',upImgExt:\'jpg,jpeg,gif,png\'';						
+				$str .= '<tr bgcolor="'.$bg_color.'"><td '.$style.' width="200">'.$val[4].'</td><td '.$style.'><textarea name="'.$val[0].'" id="'.$val[0].'" style="'.$width.$height.'" onBlur="this.className=\'kuang\'" class="xheditor {skin:\'nostyle\','.$editor.'}">'.$value.'</textarea></td></tr>';
+			}
+			elseif ($val[1] == 'select')
+			{
+				if(empty($val[6]))
+				{
+					$js_str .= 'if ($("#'.$val[0].'").val() == ""){	alert ("'.$val[4].' is NUll");return false;}';
+				}	
+				$select_str = '';
+				foreach ($value as $nkey => $nval)
+				{
+					$select_str .= '<option value="'.$nval.'">'.$nkey.'</option>';
+				}	
+				$str .= '<tr bgcolor="'.$bg_color.'"><td '.$style.' width="200">'.$val[4].'</td><td '.$style.'><select name="'.$val[0].'" id="'.$val[0].'" style="'.$width.$height.'">'.$select_str.'</select></td></tr>';
+			}
+			else 
+			{
+				if(empty($val[6]))
+				{
+					$js_str .= 'if ($("#'.$val[0].'").val() == ""){	alert ("'.$val[4].' is NUll");return false;}';
+				}				
+				$str .= '<tr bgcolor="'.$bg_color.'"><td '.$style.' width="200">'.$val[4].'</td><td '.$style.'><input type="'.$val[1].'" name="'.$val[0].'" id="'.$val[0].'" value="'.$value.'" style="'.$width.$height.'" class="kuang" onBlur="this.className=\'kuang\'" onFocus="this.className=\'kuang1\'"/></td></tr>';
+			}
+			
+		}
+		echo '<script>function form_onsubmit(){'.$js_str.'}</script>';
+		echo '<form action="" method="post" name="form1" id="form1" onSubmit="return form_onsubmit()"><table class="table" width="100%" border="0" cellspacing="0">'.$str.'<tr><td colspan="2" align="center" '.$style.'><input type="submit" value="'.$this->p_lang['submit'].'" style="border:1px #000000 solid;vertical-align:middle;height:25px"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="reset" name="button2" id="button2" value="'.$this->p_lang['reset'].'" style="border:1px #000000 solid;vertical-align:middle;height:25px"/></td></tr></table></form>';
+		return;
+	}
+	
+	public function load_list($list_arr, $type, $link_arr, $append_arr = '', $select = 0, $from = 'admin')
+	{
+		if($select == 1){
+			$cateObj = $this->load_model('Q_Cate');
+			$cateArr = $cateObj->select('', '', 'cid,cname', 0, 'cid');
+		}
+		if(empty($list_arr))return;
+		$str = '';
+		$title = '';
+		$title_arr = array();
+		$i = 0;
+		$style = 'style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"';
+		$idArr = array();
+		foreach($list_arr AS $key => $val)
+		{
+			$i += 1;
+			$bg_color = ($i%2 == 1) ? '#ffffff' : '#f9f9f9';
+			$str .= '<tr bgcolor="'.$bg_color.'">';
+			$link_str = '';
+			if(!empty($select)){
+				$str .= '<td '.$style.'><input type="checkbox" id="nid_'.$val['nid'].'" value="'.$val['nid'].'" /></td>';
+				$idArr[] = $val['nid'];
+			}
+			foreach ($val AS $skey => $sval)
+			{			
+				$title_str_ = '';	
+				$title_arr[$skey] = $sval;					
+				if($skey == 'type'){
+					if($sval == 1){
+						$str .= '<td '.$style.'><font color="red">'.$this->p_lang['hot'].'</font></td>';
+					}elseif($sval == 2){
+						$str .= '<td '.$style.'><font color="red">'.$this->p_lang['recommend'].'</font></td>';
+					}else{
+						$str .= '<td '.$style.'>'.$this->p_lang['no'].'</td>';
+					}	
+				}elseif($skey == 'outlink'){
+					if(empty($sval)){
+						$str .= '<td '.$style.'>'.$this->p_lang['no'].'</td>';
+					}else{
+						$str .= '<td '.$style.'><font color="red">'.$this->p_lang['outlink'].'</font></td>';
+					}					
+				}elseif($skey == 'ntitle'){
+					$str .= '<td '.$style.'>'.$sval.'</td>';
+				}elseif($skey == 'cid' && $select == 1){
+					$str .= '<td '.$style.'><a href="'.url(array('admin', 'news')).'&cid='.$sval.'">'.$cateArr[$sval]['cname'].'</a></td>';
+				}else{					
+					$str .= '<td '.$style.'>'.$sval.'</td>';
+				}
+			}
+			if(!empty($link_arr))
+			{
+				$edit_arr = array($from, $type.'_edit');
+				$del_arr = array($from, $type.'_del');
+				if(is_array($link_arr)){
+					foreach($link_arr as $sval){
+						$edit_arr[] = $val[$sval];
+						$del_arr[] = $val[$sval];
+					}					
+				}else{
+					$edit_arr[] = $link_arr;
+					$del_arr[] = $link_arr;
+				}
+				$append = '';
+				if(!empty($append_arr)){
+					foreach($append_arr as $ak => $av){
+						$append .= '<a href="'.url(array('admin', $av[0], $val[$av[2]])).'">'.$av[1].'</a> ';
+					}					
+				}
+				$str .= '<td '.$style.'><a href="'.url($edit_arr).'">'.$this->p_lang['edit'].'</a> <a href="'.url($del_arr).'" onclick="return confirm(\'Confirm Delete ?\');">'.$this->p_lang['delete'].'</a> '.$append.'</td></tr>';
+			}	
+			else
+			{
+				$str .= '<td '.$style.'>&nbsp;&nbsp;</td></tr>';
+			}		
+		}		
+		//-- title Start --
+		$input_style = 'style="border:1px #000000 solid;vertical-align:middle;height:25px"';
+		if(!empty($select)){
+			$count = count($list_arr[0])+2;
+			$str .= '<tr id="actionAll"><td '.$style.' colspan="'.$count.'" align="center"><input type="button" id="delAll" value="批量删除" '.$input_style.'/>&nbsp;&nbsp;&nbsp;&nbsp;<input type="button" id="editAll" value="批量修改" '.$input_style.'/></td></tr>';
+			$title .= '<td '.$style.'><input type="checkbox" id="select_all" onclick="selectAll()"/></td>';			
+		}
+		foreach($title_arr as $key => $val)
+		{
+			$title .= '<td '.$style.'>'.$this->p_lang[$key].'</td>';			
+		}
+		echo '<table class="table" width="100%" border="0" cellspacing="0">
+		<tr bgcolor="'.$bg_color.'">'.$title.'<td '.$style.'>'.$this->p_lang['config'].'</td></tr>
+		'.$str.'</table>';
+		if(!empty($select)){
+		echo '
+		<script>
+		var selectStarus = 0;
+		var idJson = '.json_encode($idArr).';
+		$(function(){
+			$("#delAll").click(function(){
+				selected = "";
+				$.each(idJson, function(i, n){
+					if($("#nid_"+n).attr(\'checked\') == true){
+						selected += n+"|";
+					}
+				})
+				window.location.href="'.url(array('admin', 'news_del',0,0)).'&act=1&id="+selected;
+			})
+			$("#editAll").click(function(){
+				selected = "";
+				$.each(idJson, function(i, n){
+					if($("#nid_"+n).attr(\'checked\') == true){
+						selected += n+"|";
+					}
+				})
+				window.location.href="'.url(array('admin', 'news_edit_all',0,0)).'&act=1&id="+selected;
+			})
+		})
+		function selectAll(){
+			if(selectStarus == 0){
+				selectStarus = 1;
+			}else{
+				selectStarus = 0;
+			}			
+			$.each(idJson, function(i, n){
+				if(selectStarus == 1){
+					$("#nid_"+n).attr(\'checked\', true);
+				}else{
+					$("#nid_"+n).attr(\'checked\', false);
+				}
+			})
+		}
+		</script>';
+		}
+		return;
+	}
+	
 	public function post_verify($post_arr)
 	{
 		foreach ($post_arr as $key => $val)
@@ -198,13 +356,12 @@ abstract class Base
 		return TRUE;				
 	}
 	
-	protected function p_login($result, $type = 0)
+	protected function p_login($result)
 	{
-		$userTye = empty($type) ? 'user' : 'admin';
-		setcookie ($userTye.'[uid]', $result[0]["uid"], time() + 31536000, "/");
-		setcookie ($userTye.'[username]', $result[0]["username"], time() + 31536000, "/");
-		setcookie ($userTye.'[password]', $result[0]["password"], time() + 31536000, "/");
-		setcookie ($userTye.'[level]', $result[0]["level"], time() + 31536000, "/");
+		setcookie ("user[uid]", $result[0]["uid"], time() + 31536000, "/");
+		setcookie ("user[username]", $result[0]["username"], time() + 31536000, "/");
+		setcookie ("user[password]", $result[0]["password"], time() + 31536000, "/");
+		setcookie ("user[level]", $result[0]["level"], time() + 31536000, "/");
 		return;
 	}
 	
@@ -214,10 +371,6 @@ abstract class Base
 		setcookie ("user[username]", '', time(), "/");
 		setcookie ("user[password]", '', time(), "/");
 		setcookie ("user[level]", '', time(), "/");
-		setcookie ("admin[uid]", '', time(), "/");
-		setcookie ("admin[username]", '', time(), "/");
-		setcookie ("admin[password]", '', time(), "/");
-		setcookie ("admin[level]", '', time(), "/");
 		return ;
 	}
 
@@ -245,7 +398,6 @@ abstract class Base
 		require 'module/'.$name.'/'.$name.'_module'.EXT;
 		$m = $name.'_module';
 		$class = new $m();
-		$class->plusArr = $this->plusArr;
 		call_user_func_array(array($class, $method), $action);
 	}
 }

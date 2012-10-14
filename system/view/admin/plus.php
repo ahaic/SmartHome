@@ -1,18 +1,12 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿<html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
- <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
+<link rel=stylesheet href="styles/advanced/style.css" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <?
-$this->load_css(array('bootstrap.min', 'bootstrap-responsive.min'));
-$this->load_js(array('jquery', 'bootstrap-dropdown'));
+$this->load_js(array('jquery', 'xheditor-zh-cn.min'));
+$this->load_css('admin_style');
 ?>
 <script>
-$('.dropdown-toggle').dropdown()
 function install(name){
 	$.post('<?=url(array('admin', 'plus', 'install'))?>', {'module' : name}, function(data){
 		if(data == '1'){
@@ -39,52 +33,35 @@ function uninstall(name){
 </script>
 </head>
 <body>
+<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-image:url(<?=IMG_PATH?>bg3.gif);  background-repeat:repeat-x;  padding-left:   2px; padding-right:  2px; padding-bottom: 2px; margin-top:5px;  border:#dfdfdf solid 1px;">
+  <tr>
+    <td align="center"><p class="pagetitle"><?=$this->p_lang['basic']?>：<?=date('Y-m-d H:i:s')?></p></td>
+  </tr>
+</table>
+<br />
+<table class="table" width="100%" border="0" cellspacing="0">
 <?
-  $this->load_php('admin/top');
+foreach($module as $k => $v){
+	?>
+<tr bgcolor="#F9F9F9"><td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"><?=$k?></td><td style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;">
+<?
+switch($v){
+	case '1':
+	echo '<a onClick="uninstall(\''.$k.'\')">卸载</a>';
+	break;
+	default:
+	echo '<a onClick="install(\''.$k.'\')">安装</a>';break;	
+}
 ?>
-<div class="container-fluid">
-<div class="row-fluid">
-  <div class="span2">
-  <?
-  $this->load_php('admin/menu');
-  ?>
-  </div>
-  <div class="span10">
-        <p><h2><?=$this->p_lang['plugin'].$this->p_lang['manage']?>&nbsp;&nbsp;<a href="<?=url(array('admin', 'ext_add', $type))?>"><?=$this->p_lang['add']?></a>
-</ul>
-</h2></p>
-        <table class="table table-bordered">
-        <thead><tr>
-        <th class="span2">ID</th>
-        <th class="span4"><?=$this->p_lang['title']?></th>
-        <th class="span2"><?=$this->p_lang['status']?></th>
-        <th class="span2"><?=$this->p_lang['handle']?></th>
-        </tr></thead>
-        <tbody>
-        <?
-		$i = 0;
-        foreach($this->plusArr as $k => $v){
-			$i++;
-		?>
-        <tr>
-        <td><?=$i?></td>
-        <td><?=$k?></td>
-        <td><?=empty($v) ? $this->p_lang['not'].$this->p_lang['install'] : $this->p_lang['already'].$this->p_lang['install']?></td>
-        <td><div class="btn-group">
-  <a class="btn btn-primary" href="#" <?=empty($v) ? 'onClick="install(\''.$k.'\')"' : 'onClick="uninstall(\''.$k.'\')"'?>><i class="icon-th-list icon-white"></i> <?=empty($v) ? $this->p_lang['install'] : $this->p_lang['uninstall']?></a>
-  
-</div></td>
-        </tr>
-        <?
-		}
-		?>
-        </tbody>
-        </table>
-  </div>
+</td></tr>
+<?
+}
+?>
+</table>
+<br />
+<?
+$this->load_php('admin/footer');
+?>
 
-</div></div>
-<?
-  $this->load_php('admin/footer');
-?>
 </body>
 </html>
