@@ -25,7 +25,7 @@ class Q_News extends Db_class
 	
 	public function select_all($cond_arr=array(), $limit = '', $field='*', &$count, $tb_name = 0,  $index = 0, $sort = array('nid' => 'DESC'), $fetch = 0)
 	{
-		$count = self::select($cond_arr, '', 'COUNT(*) AS count');
+		$count = self::select($cond_arr, '', 'COUNT(*) AS count', 0, 0, $sort);
 		$rs = self::select($cond_arr, $limit, $field, 0, 0, $sort);		
 		return $rs;
 	}

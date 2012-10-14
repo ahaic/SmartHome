@@ -23,6 +23,17 @@ class Temp extends Temp_base
 		return;
 	}
 	
+	public function other($temp, $type)
+	{
+		$str = self::_tempView($temp, 4);
+		if($type == 1)
+		{
+			return $str;
+		}
+		echo $str;
+		return;
+	}
+	
 	public function cate($temp)
 	{				
 		echo self::_tempView($temp, 1);
@@ -48,21 +59,31 @@ class Temp extends Temp_base
 	private function _tempView($temp, $type = '0'){
 		
 		$str = $this->temp_include($temp);
+		$str = $this->temp_common($str);
 		switch($type){
 			case 1:
 				$str = $this->temp_cate($str);
+				$str = self::temp_copyright($str, 0);
 				break;
 			case 2:
 				$str = $this->temp_view($str);
+				$str = self::temp_copyright($str, 0);
 				break;
 			case 3:
 				$str = $this->temp_diy($str);
+				$str = self::temp_copyright($str, 0);
 				break;
 			case 4:
 				$str = $this->temp_search($str);
+				$str = self::temp_copyright($str, 0);
+				break;
+			case 4:
+				$str = $this->temp_index($str);
+				$str = self::temp_copyright($str, 0);
 				break;
 			default:
 				$str = $this->temp_index($str);
+				$str = self::temp_copyright($str, 1);
 				break;
 		}	
 		$str = $this->temp_tag($str);
@@ -72,7 +93,6 @@ class Temp extends Temp_base
 		$str = $this->temp_loop($str);
 		$str = $this->temp_table($str);
 		$str = $this->temp_global($str);
-		$str = $this->temp_copyright($str);
 		$str = str_replace(array('@{@', '@}@'), array('{', '}'), $str);
 		$str = $this->temp_module($str);
 		$str = $this->temp_pic($str);

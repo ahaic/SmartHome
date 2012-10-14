@@ -83,23 +83,17 @@ function url($url_arr, $type = 0)
 	return SITEPATH.$result;
 }
 
-/*function page_bar($count, $size, $url = '', $num = 9, $parameter = 'p')
+function page_bar($count, $size, $url = '', $num = 9, $parameter = 'p')
 {	
 	$url =empty($url) ? $_SERVER['REQUEST_URI'] : $url;
-	if(!stripos($url, $parameter.'='))
-	{
-		if(!empty($_GET))
-		{
+	if(!stripos($url, $parameter.'=')){
+		if(!empty($_GET)){
 			$page_url = $url.'&'.$parameter.'=';
-		}
-		else
-		{
+		}else{
 			$page_url = $url.'?'.$parameter.'=';
 		}
 		
-	}
-	else
-	{	
+	}else{	
 		$page_url = substr($url, 0,  (strripos($url, $parameter.'=')+strlen($parameter.'=')));
 	}
 	$p = empty($_GET[$parameter]) ? 1 : $_GET[$parameter];
@@ -116,134 +110,50 @@ function url($url_arr, $type = 0)
 		for($i=1;$i<=$toall;$i++)
 		{			
 			if($p == $i){
-				$str .= '<li><span>'.$i.'</span></li>';
+				$str .= '<a class="btn">'.$i.'</a>';
 			}else{
-				$str .= '<li><a href="'.$page_url.$i.'">'.$i.'</a></li>';
+				$str .= '<a class="btn" href="'.$page_url.$i.'">'.$i.'</a>';
 			}
 			
 		}
-		return '<ol class="pagination fixed"><li><a href="'.$page_url.'1"><b>«</b></a></li>'.$pre.$str.$next.'<li><a href="'.$page_url.$toall.'"><b>»</b></a></li>'.$toall_str.'</ol>';
+		return '<div class="btn-toolbar"><div class="btn-group"><a class="btn" href="'.$page_url.'1">«</a>'.$pre.$str.$next.'<a class="btn" href="'.$page_url.$toall.'">»</a></div></div>';
 	}
 	if(($toall - $p) > ceil($num/2) && $p < ceil($num/2))
 	{
 		for($i=1;$i<=$num;$i++)
 		{			
 			if($p == $i){
-				$str .= '<li><span>'.$i.'</span></li>';
+				$str .= '<a class="btn">'.$i.'</a>';
 			}else{
-				$str .= '<li><a href="'.$page_url.$i.'">'.$i.'</a></li>';
+				$str .= '<a class="btn" href="'.$page_url.$i.'">'.$i.'</a>';
 			}
-		}
-		return '<ol class="pagination fixed"><li><a href="'.$page_url.'1"><b>«</b></a></li>'.$pre.$str.$next.'<li><a href="'.$page_url.$toall.'"><b>»</b></a></li>'.$toall_str.'</ol>';
-	}
-	if(($toall - $p) < ceil($num/2))
-	{
-		for($i = ($toall - $num + 1);$i <= $toall;$i++)
-		{
-			if($p == $i){
-				$str .= '<li><span>'.$i.'</span></li>';
-			}else{
-				$str .= '<li><a href="'.$page_url.$i.'">'.$i.'</a></li>';
-			}
-		}
-		return '<ol class="pagination fixed"><li><a href="'.$page_url.'1"><b>«</b></a></li>'.$pre.$str.$next.'<li><a href="'.$page_url.$toall.'"><b>»</b></a></li>'.$toall_str.'</ol>';
-	}
-	for($i = ($p -  floor($num/2));$i <= ($p + floor($num/2));$i++)
-	{
-			if($p == $i){
-				$str .= '<li><span>'.$i.'</span></li>';
-			}else{
-				$str .= '<li><a href="'.$page_url.$i.'">'.$i.'</a></li>';
-			}
-	}		
-	return '<ol class="pagination fixed"><li><a href="'.$page_url.'1"><b>«</b></a></li>'.$pre.$str.$next.'<li><a href="'.$page_url.$toall.'"><b>»</b></a></li>'.$toall_str.'</ol>';
-}
-*/
-function page_bar($count, $size, $url = '', $num = 9, $parameter = 'p')
-{	
-	$default_css = 'style="border: 1px solid #999;
-	text-decoration: none;
-	color: #000;
-	font-size: 12px;
-	line-height: 16px;
-	background-color: #FFF;
-	margin-top: 0px;
-	margin-right: 5px;
-	margin-bottom: 0px;
-	margin-left: 0px;
-	padding: 5px;"';
-	$current_css = 'style="border: 1px solid #999;
-	text-decoration: none;
-	color: #000;
-	background-color: #DAE2E8;
-	font-weight: bold;
-	font-size: 12px;
-	line-height: 16px;
-	margin-top: 0px;
-	margin-right: 5px;
-	margin-bottom: 0px;
-	margin-left: 0px;
-	padding: 5px;"';
-	$url =empty($url) ? $_SERVER['REQUEST_URI'] : $url;
-	if(!stripos($url, $parameter.'='))
-	{
-		if(!empty($_GET))
-		{
-			$page_url = $url.'&'.$parameter.'=';
-		}
-		else
-		{
-			$page_url = $url.'?'.$parameter.'=';
 		}
 		
-	}
-	else
-	{	
-		$page_url = substr($url, 0,  (strripos($url, $parameter.'=')+strlen($parameter.'=')));
-	}
-	$p = empty($_GET[$parameter]) ? 1 : $_GET[$parameter];
-	$toall = ceil($count/$size);
-	$toall_str = '<span '.$default_css.'>Toall:'.$count.'</span>';
-	if($p > $toall)$p = $toall;
-	$str = '';
-	$pre = ($p <= 1) ? '<a href="'.$page_url.'1" '.$default_css.'>«</a>' : '<a href="'.$page_url.($p-1).'" '.$default_css.'>«</a>';
-	$next = ($p >= $toall) ? '<a href="'.$page_url.$toall.'" '.$default_css.'>»</a>' : '<a href="'.$page_url.($p+1).'" '.$default_css.'>»</a>';
-	$pre = '';
-	$next = '';
-	if($toall <= $num)
-	{
-		for($i=1;$i<=$toall;$i++)
-		{			
-			$class_style = ($p == $i) ? $current_css : $default_css;
-			$str .= '<a href="'.$page_url.$i.'" '.$class_style.'>'.$i.'</a>';
-		}
-		return '<a href="'.$page_url.'1" '.$default_css.'><b>«</b></a>'.$pre.$str.$next.'<a href="'.$page_url.$toall.'" '.$default_css.'><b>»</b></a>'.$toall_str;
-	}
-	if(($toall - $p) > ceil($num/2) && $p < ceil($num/2))
-	{
-		for($i=1;$i<=$num;$i++)
-		{			
-			$class_style = ($p == $i) ? $current_css : $default_css;
-			$str .= '<a href="'.$page_url.$i.'" '.$class_style.'>'.$i.'</a>';
-		}
-		return '<a href="'.$page_url.'1" '.$default_css.'><b>«</b></a>'.$pre.$str.$next.'<a href="'.$page_url.$toall.'" '.$default_css.'><b>»</b></a>'.$toall_str;
+		return '<div class="btn-toolbar"><div class="btn-group"><a class="btn" href="'.$page_url.'1">«</a>'.$pre.$str.$next.'<a class="btn" href="'.$page_url.$toall.'">»</a></div></div>';
 	}
 	if(($toall - $p) < ceil($num/2))
 	{
 		for($i = ($toall - $num + 1);$i <= $toall;$i++)
 		{
-			$class_style = ($p == $i) ? $current_css : $default_css;
-			$str .= '<a href="'.$page_url.$i.'" '.$class_style.'>'.$i.'</a>';
+			if($p == $i){
+				$str .= '<a class="btn">'.$i.'</a>';
+			}else{
+				$str .= '<a class="btn" href="'.$page_url.$i.'">'.$i.'</a>';
+			}
 		}
-		return '<a href="'.$page_url.'1" '.$default_css.'><b>«</b></a>'.$pre.$str.$next.'<a href="'.$page_url.$toall.'" '.$default_css.'><b>»</b></a>'.$toall_str;
+		return '<div class="btn-toolbar"><div class="btn-group"><a class="btn" href="'.$page_url.'1">«</a>'.$pre.$str.$next.'<a class="btn" href="'.$page_url.$toall.'">»</a></div></div>';
 	}
 	for($i = ($p -  floor($num/2));$i <= ($p + floor($num/2));$i++)
 	{
-		$class_style = ($p == $i) ? $current_css : $default_css;
-		$str .= '<a href="'.$page_url.$i.'" '.$class_style.'>'.$i.'</a>';
+			if($p == $i){
+				$str .= '<a class="btn">'.$i.'</a>';
+			}else{
+				$str .= '<a class="btn" href="'.$page_url.$i.'">'.$i.'</a>';
+			}
 	}		
-	return '<a href="'.$page_url.'1" '.$default_css.'><b>«</b></a>'.$pre.$str.$next.'<a href="'.$page_url.$toall.'" '.$default_css.'><b>»</b></a>'.$toall_str;
+	return '<div class="btn-toolbar"><div class="btn-group"><a class="btn" href="'.$page_url.'1">«</a>'.$pre.$str.$next.'<a class="btn" href="'.$page_url.$toall.'">»</a></div></div>';
 }
+
 
 function easy_page($page, $toall, $url){
 	$page_bar = array();
@@ -257,5 +167,32 @@ function easy_page($page, $toall, $url){
 	$page_bar['style'] = ($toall <= 1) ? 'none' : 'block';
 	$page_bar['page'] = '<a href="'.$page_bar['first_page'].'">第一页</a>&nbsp;<a href="'.$page_bar['pre_page'].'">上一页</a>&nbsp;&nbsp;'.$page_bar['now'].'&nbsp;&nbsp;<a href="'.$page_bar['next_page'].'">下一页</a>&nbsp;<a href="'.$page_bar['end_page'].'">最后一页</a>';
 	return $page_bar;
+}
+
+function isSInaApp(){
+	if(!class_exists('SaeStorage'))
+	{
+		class SaeStorage
+		{
+			public function write($fakeDomain,$filename,$data)
+			{
+				file_put_contents($filename,$data);
+			}
+			public function read($fakeDomain,$filename)
+			{
+				return file_get_contents($filename);
+			}
+			public function delete($fakeDomain,$filename)
+			{
+				return unlink(filename);
+			}
+			public function fileExists($fakeDomain,$filename)
+			{
+				return file_exists(filename);
+			}
+		}
+	}
+	
+	return new SaeStorage();
 }
 ?>

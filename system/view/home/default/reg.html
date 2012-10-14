@@ -1,102 +1,91 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="QCMS,QCMS ASP1.4SP2,QCMS ASP1.4 SP2版" />
-<meta name="description" content="QCMS ASP 1.4 SP2" />
-<meta http-equiv="X-UA-Compatible" content="IE=7" />
-<link href="{qcms:skin}css.css" rel="stylesheet" type="text/css" />
+<!DOCTYPE html>
+<html lang="en"><head>
 <title>{qcms:webname}</title>
-<link href="css.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript">
-var __aObj=document.getElementsByTagName("a");
-var __length=__aObj.length;
-for(var i=0;i<__length;i++){
-	__aObj[i].onfocus=function(){this.blur();}
-}
-</script>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+ <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+<link href='{qcms:css_path}bootstrap.min.css' rel='stylesheet' type='text/css' />
+<link href='{qcms:css_path}bootstrap-responsive.min.css' rel='stylesheet' type='text/css' />
+<style>
+.line_heighe{ line-height:25px;}
+</style>
 </head>
 <body>
 {include:header}
-<script Language="JavaScript">
-function FormCheck(form1) {
-	if (document.form1.username.value =="") 
-	{ 
-		alert("请输入注册帐号！"); 
-		form1.username.focus();
-		return false;
-	}
-	if (document.form1.password.value =="") 
-	{ 
-		alert("请输入注册密码！"); 
-		form1.password.focus();
-		return false;
-	}
-	if (document.form1.email.value =="") 
-	{ 
-		alert("请输入注册邮箱！"); 
-		form1.email.focus();
-		return false;
-	}
-}
-</script>
-<div id="conther">
-  <div id="bodyer">
-    <div id="left">
-      <div class="ad"><strong>ASP.NET 1.0BETA 企业管理系统</strong><br>
- 本版系统是QCMS ASP.NET 1.0,套装1.4 SP2模板风格,此风格是新的系统风格，以后ASP版和PHP版也将沿用此风格。</div>
-      <div class="tp">
-        <h3>联系我们</h3>
-        <div class="links">开发地点：上海市徐家汇<br />
-支付宝：<a href="mailto:qesy@163.com">qesy@163.com</a><br />
-QQ：762264、66999174
-        </div>
-      </div>
+<div class="container container-fluid" style="max-width:1080px">
+  <div class="row-fluid">
+    <div class="span3">
+      {include:lefter}
     </div>
-    <div id="all-right">
-	<script type="text/javascript"><!--
-google_ad_client = "pub-0131836077721671";
-/* 468x60, 创建于 11-8-24 */
-google_ad_slot = "8156465749";
-google_ad_width = 468;
-google_ad_height = 60;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script><br><h4>用户注册：</h4><div class="info"><form action="" method="post" id="form1" name="form1">
-      <div class="MnRt06Ct01">
-        <ul>
-          <li>
-           {lang:user}：
-           <input name="username" type="text" id="username" value="" /></li>
-            <li>
-           {lang:password}：
-           <input name="password" type="password" id="password" value="" /></li>
-          <li>
-           {lang:sex}：
-           <select name="sex">
-             <option value="0" >{lang:boy}</option>
-             <option value="1" >{lang:girl}</option>
-           </select> 
-           </li>
-          <li>
-            {lang:email}：
-            <input name="email" type="text" id="email" value="" /></li>
-          <li>
-           Q　Q：
-          <input name="qq" type="text" id="qq" value="" /> </li>
-          <li>
-            {lang:tel}：
-           <input name="tel" type="text" value="" /> </li>
-          <li>
-            {lang:address}：
-            <input name="address" type="text" value="" /></li>
-            <li><input name="" type="submit" value="{lang:submit}" onClick="return FormCheck(form1)"/></li>
-        </ul>
-      </div></form></div>
-      </div>
-  </div>
-
+    <div class="span9">
+     <p><h3>用户注册</h3></p>
+     <p class="line_heighe">
+     <div id="reg" ><form action="" method="post" class="form-horizontal">
+<fieldset >
+<div class="control-group">
+    <label class="control-label" for="input01">用户名</label>
+    <div class="controls">
+      <input name="username" type="text" class="input" id="username">
+    </div>
 </div>
-{include:footer}
+<div class="control-group">
+    <label class="control-label" for="input01">密码</label>
+    <div class="controls">
+      <input type="password" class="input" id="password" name="password">
+    </div>
+</div>
+<div class="control-group">
+    <label class="control-label" for="input01">性别</label>
+    <div class="controls">
+      <select name="sex">
+        <option value="0">男</option>
+        <option value="1">女</option>
+      </select>
+    </div>
+</div>   
+<div class="control-group">         
+    <label class="control-label" for="input01">email</label>
+    <div class="controls">
+       <input name="email" type="text" class="input" id="email">
+    </div>
+</div>    
+<div class="control-group">         
+    <label class="control-label" for="input01">QQ</label>
+    <div class="controls">
+       <input name="qq" type="text" class="input" id="qq">
+    </div>
+</div>  
+<div class="control-group">         
+    <label class="control-label" for="input01">电话</label>
+    <div class="controls">
+       <input name="tel" type="text" class="input" id="tel">
+    </div>
+</div> 
+<div class="control-group">         
+    <label class="control-label" for="input01">地址</label>
+    <div class="controls">
+       <input name="address" type="text" class="input" id="address">
+    </div>
+</div> 
+<div class="control-group">         
+    <label class="control-label" for="input01">验证码</label>
+    <div class="controls">
+       <input name="veri" type="text" id="veri" class="input-mini"/>
+<img src="index.php?q=home/veri" onclick= 'this.src="index.php?q=home/veri/&"+Math.random()' />
+    </div>
+</div> 
+<div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-large">注册</button>
+            <button class="btn btn-large" type="reset">取消</button>
+</div>         
+    </fieldset></form>
+</div>
+     </p> 
+    </div>
+  </div>
+  {include:footer}
+</body>
+</html>

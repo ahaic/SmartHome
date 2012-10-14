@@ -5,7 +5,6 @@ class Temp_base
 	protected  $p_site;
 	protected  $p_lang;
 	protected $p_skin;
-	public $y;
 	public $p_cid;
 	public $p_nid;
 	public $p_eid;
@@ -14,25 +13,25 @@ class Temp_base
 	
 	public function temp_index($temp)
 	{
-		$search = array('{qcms:webname}', '{qcms:web_keyword}', '{qcms:email}', '{qcms:web_count}', '{qcms:icp}', '{qcms:path}', '{qcms:here}', '{qcms:img_path}', '{qcms:css_path}', '{qcms:js_path}', '{qcms:skin}');
-		$replace = array($this->p_site['webname'], $this->p_site['keyword'], $this->p_site['email'], $this->p_site['count'], $this->p_site['icp'], $this->sitepath, '<a href="'.$this->sitepath.'">'.$this->p_lang['home'].'</a>&nbsp;>&nbsp;', IMG_PATH, CSS_PATH, JS_PATH, $this->p_skin_img);
-		foreach ($this->p_lang as $key => $val)
-		{
-			$search[] = '{lang:'.$key.'}';
-			$replace[] = $val;
-		}			
+		$search = array('{qcms:here}');
+		$replace = array('<a href="'.$this->sitepath.'">'.$this->p_lang['home'].'</a>&nbsp;>&nbsp;');					
 		return str_replace($search, $replace, $temp);
 	}
 	
-	public function temp_copyright($temp){
+	public function temp_common($temp){
+		$search = array('{qcms:webname}', '{qcms:web_keyword}', '{qcms:email}', '{qcms:web_count}', '{qcms:icp}', '{qcms:path}', '{qcms:img_path}', '{qcms:css_path}', '{qcms:js_path}', '{qcms:skin}', '{qcms:logo}', '{qcms:web_info}');
+		$replace = array($this->p_site['webname'], $this->p_site['keyword'], $this->p_site['email'], $this->p_site['count'], $this->p_site['icp'], $this->sitepath, IMG_PATH, CSS_PATH, JS_PATH, $this->p_skin_img, $this->p_site['logo'], $this->p_site['info']);
+		return str_replace($search, $replace, $temp);
+	}
+	
+	public function temp_copyright($temp, $isIndex = 0){
 		preg_match_all('/'.base64_decode('e3FjbXM6Y29weXJpZ2h0fQ==').'/', $temp, $matches);
 		$c = count($matches[0]);
-		if(empty($c)){
+		if(empty($c) && !empty($isIndex)){
 			$temp .= base64_decode('PGEgaHJlZj0iaHR0cDovL3d3dy5xLWNtcy5jbiIgdGFyZ2V0PSJfYmxhbmsiPlFDTVM8L2E+');			
 		}else{
 			$temp = str_replace(base64_decode('e3FjbXM6Y29weXJpZ2h0fQ=='), base64_decode('PGEgaHJlZj0iaHR0cDovL3d3dy5xLWNtcy5jbiIgdGFyZ2V0PSJfYmxhbmsiPlFDTVM8L2E+'), $temp);
 		}
-		$this->y = 1;
 		return $temp;
 	}
 	
@@ -40,13 +39,8 @@ class Temp_base
 	{
 		$cate_obj = $this->_load_model('Q_Cate');
 		$rs_temp = $cate_obj->select(array('cid' => $this->p_cid));
-		$search = array('{qcms:cname}', '{qcms:pcid}', '{qcms:cid}', '{qcms:cimg}', '{qcms:ckeyword}', '{qcms:cinfo}', '{qcms:webname}', '{qcms:web_keyword}', '{qcms:email}', '{qcms:web_count}', '{qcms:icp}', '{qcms:path}', '{qcms:here}', '{qcms:img_path}', '{qcms:css_path}', '{qcms:js_path}', '{qcms:skin}');
-		$replace = array($rs_temp[0]['cname'],  $rs_temp[0]['pcid'], $rs_temp[0]['cid'], $rs_temp[0]['cimg'], $rs_temp[0]['ckeyword'], $rs_temp[0]['cinfo'], $this->p_site['webname'], $this->p_site['keyword'], $this->p_site['email'], $this->p_site['count'], $this->p_site['icp'], $this->sitepath, '<a href="'.url(array('home', 'index'), $this->p_site["shorturl"]).'">'.$this->p_lang['home'].'</a>&nbsp;>&nbsp;'.self::_class_here($rs_temp[0]['cid']), IMG_PATH, CSS_PATH, JS_PATH, $this->p_skin_img);
-		foreach ($this->p_lang as $key => $val)
-		{
-			$search[] = '{lang:'.$key.'}';
-			$replace[] = $val;
-		}		
+		$search = array('{qcms:cname}', '{qcms:pcid}', '{qcms:cid}', '{qcms:cimg}', '{qcms:ckeyword}', '{qcms:cinfo}', '{qcms:here}');
+		$replace = array($rs_temp[0]['cname'],  $rs_temp[0]['pcid'], $rs_temp[0]['cid'], $rs_temp[0]['cimg'], $rs_temp[0]['ckeyword'], $rs_temp[0]['cinfo'], '<a href="'.url(array('home', 'index'), $this->p_site["shorturl"]).'">'.$this->p_lang['home'].'</a>&nbsp;>&nbsp;'.self::_class_here($rs_temp[0]['cid']));		
 		return str_replace($search, $replace, $temp);
 	}
 	
@@ -105,11 +99,9 @@ class Temp_base
 		$news_content = str_replace(array('{', '}'), array('@{@', '@}@'), $contStr);
 		$news_info = str_replace(array('{', '}'), array('@{@', '@}@'), strip_tags(substr($rs_news[0]['ncontent'], 0, $this->p_site['infolen'])));
 		$search = array('{qcms:cname}', '{qcms:cid}', '{qcms:cimg}', '{qcms:ckeyword}', '{qcms:cinfo}', '{qcms:author}', 
-		'{qcms:id}', '{qcms:title}', '{qcms:url}', '{qcms:keyword}', '{qcms:tags}', '{qcms:content}', '{qcms:time}', '{qcms:img}', '{qcms:count}', 
-		'{qcms:webname}', '{qcms:web_keyword}', '{qcms:email}', '{qcms:web_count}', '{qcms:icp}', '{qcms:path}', '{qcms:here}', '{qcms:info}', '{qcms:pre}', '{qcms:next}');
+		'{qcms:id}', '{qcms:title}', '{qcms:url}', '{qcms:keyword}', '{qcms:tags}', '{qcms:content}', '{qcms:time}', '{qcms:img}', '{qcms:count}', '{qcms:here}', '{qcms:info}', '{qcms:pre}', '{qcms:next}');
 		$replace = array($rs_cate[0]['cname'], $rs_cate[0]['cid'], $rs_cate[0]['cimg'], $rs_cate[0]['ckeyword'], $rs_cate[0]['cinfo'], $author,
-		$rs_news[0]['nid'], $rs_news[0]['ntitle'], url(array('home', 'view', $rs_news[0]['nid']),$this->p_site["shorturl"]), $rs_news[0]['nkeyword'], $tags, $news_content, $rs_news[0]['ntime'], $rs_news[0]['nimg'], '<script type="text/javascript" src="'.url(array('home', 'count', $rs_news[0]['nid']), $this->p_site["shorturl"]).'"></script>',
-		$this->p_site['webname'], $this->p_site['keyword'], $this->p_site['email'], $this->p_site['count'], $this->p_site['icp'], $this->sitepath, '<a href="'.$this->sitepath.'">'.$this->p_lang['home'].'</a>&nbsp;>&nbsp;'.self::_class_here($rs_news[0]['cid']), $news_info,
+		$rs_news[0]['nid'], $rs_news[0]['ntitle'], url(array('home', 'view', $rs_news[0]['nid']),$this->p_site["shorturl"]), $rs_news[0]['nkeyword'], $tags, $news_content, $rs_news[0]['ntime'], $rs_news[0]['nimg'], '<script type="text/javascript" src="'.url(array('home', 'count', $rs_news[0]['nid']), $this->p_site["shorturl"]).'"></script>', '<a href="'.$this->sitepath.'">'.$this->p_lang['home'].'</a>&nbsp;>&nbsp;'.self::_class_here($rs_news[0]['cid']), $news_info,
 		$preStr, $nextStr);
 		foreach($pageArr as $k => $v){
 			$search[] = '{qcms:'.$k.'}';
@@ -160,19 +152,6 @@ class Temp_base
 				}
 			}
 		}
-		foreach ($this->p_lang as $lkey => $lval)
-		{
-			$search[] = '{lang:'.$lkey.'}';
-			$replace[] = $lval;
-		}
-		$search[] = '{qcms:css_path}';
-		$search[] = '{qcms:img_path}';
-		$search[] = '{qcms:js_path}';
-		$search[] = '{qcms:skin}';
-		$replace[] = CSS_PATH;
-		$replace[] = IMG_PATH;
-		$replace[] = JS_PATH;
-		$replace[] = $this->p_skin_img;
 		return str_replace($search, $replace, $temp);
 	}
 	
@@ -182,14 +161,6 @@ class Temp_base
 		if(file_exists($this->p_skin.'diy.html')){
 			$search = array('{qcms:id}', '{qcms:title}', '{qcms:content}');
 			$replace = array($rs[0]['eid'], $rs[0]['etitle'], $rs[0]['einfo']);
-			$search[] = '{qcms:css_path}';
-			$search[] = '{qcms:img_path}';
-			$search[] = '{qcms:js_path}';
-			$search[] = '{qcms:skin}';
-			$replace[] = CSS_PATH;
-			$replace[] = IMG_PATH;
-			$replace[] = JS_PATH;
-			$replace[] = $this->p_skin_img;
 			$str = file_get_contents($this->p_skin.'diy.html');
 			$str = str_replace($search, $replace, $str);
 		}else{
@@ -199,13 +170,8 @@ class Temp_base
 	}
 	
 	public function temp_search($temp){			
-		$search = array('{qcms:webname}', '{qcms:web_keyword}', '{qcms:email}', '{qcms:web_count}', '{qcms:icp}', '{qcms:path}', '{qcms:here}', '{qcms:img_path}', '{qcms:css_path}', '{qcms:js_path}', '{qcms:skin}');
-		$replace = array($this->p_site['webname'], $this->p_site['keyword'], $this->p_site['email'], $this->p_site['count'], $this->p_site['icp'], $this->sitepath, '<a href="'.$this->sitepath.'">'.$this->p_lang['home'].'</a>&nbsp;>&nbsp;', IMG_PATH, CSS_PATH, JS_PATH, $this->p_skin_img);
-		foreach ($this->p_lang as $key => $val)
-		{
-			$search[] = '{lang:'.$key.'}';
-			$replace[] = $val;
-		}	
+		$search = array('{qcms:here}');
+		$replace = array('<a href="'.$this->sitepath.'">'.$this->p_lang['home'].'</a>&nbsp;>&nbsp;');
 		if(!empty($_GET['keyword'])){
 			$cid = empty($_GET['cid']) ? 0 : intval($_GET['cid']);
 			$keyArr = explode(' ', $_GET['keyword']);
@@ -294,7 +260,11 @@ class Temp_base
 				{
 					$i += 1;
 					$j = $i%2;
-					$current =($this->p_cid == $val['cid'])? 'current' : 'notcurrent';
+					if(empty($this->p_cid)){
+						$current =($i == 1)? 'current' : 'notcurrent';
+					}else{
+						$current =($this->p_cid == $val['cid'])? 'current' : 'notcurrent';
+					}					
 					$m_url = url(array('home', 'cate', $val['cid']), $this->p_site["shorturl"]);
 					if($val['clinkture'] == 1)
 				 	{
@@ -391,12 +361,12 @@ class Temp_base
 		 	if(!empty($img)){
 		 		$cond_arr['isimg'] = 1;
 		 	}
-		 	$rs = $news_obj->select_all($cond_arr, ' limit '.$offset.','.$row.'', '*', $count, 0, 0, $keyCond.$ord_arr); 		 	
+		 	$rs = $news_obj->select_all($cond_arr, ' limit '.$offset.','.$row.'', '*', $count, 0, 0, $keyCond.$ord_arr); 	 	
 		 	if($rs != FALSE)
 			{	
 				//-- userList --
 				foreach ($rs as $k => $v){
-					$uidArr[] = $v['uid'];
+					$uidArr[$v['uid']] = $v['uid'];
 				}	
 				if(!empty($uidArr)){
 					$userObj = $this->_load_model('Q_User');
@@ -413,10 +383,12 @@ class Temp_base
 					$j = $i%2;
 					$url = url(array('home', 'view', $val['nid']), $this->p_site["shorturl"]);
 				 	$c_url = url(array('home', 'cate', $val['cid']), $this->p_site["shorturl"]);
-				 	$form_rs = $form_obj->select(array('id' => $cid_rs[$val['cid']]['cfield']));
-				 	if(!empty($form_rs)){
-				 		$cfield_arr = @unserialize($form_rs[0]['field']);
-				 	}		 			
+				 	if(!empty($cid_rs[$val['cid']]['cfield'])){
+				 		$form_rs = $form_obj->select(array('id' => $cid_rs[$val['cid']]['cfield']));
+					 	if(!empty($form_rs)){
+					 		$cfield_arr = @unserialize($form_rs[0]['field']);
+					 	}	
+				 	}				 		 			
 				 	if($cid_rs[$val['cid']]['clinkture'] == 1)
 				 	{
 				 		$c_url = $cid_rs[$val['cid']]['clink'];

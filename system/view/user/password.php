@@ -1,48 +1,99 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="UTF-8">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="Content-Language" content="UTF-8" />
-<meta name="robots" content="all" />
-<meta name="author" content="" />
-<meta name="Copyright" content="" />
-<meta name="keywords" content="" />
-<meta name="description" content="" />
-<meta name="generator" content="" />
-<title><?=$this->p_lang['user'].$this->p_lang['center']?></title>
-<?
-$this->load_css('main');
-?>
-</head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
 
+<?
+$this->load_css(array('bootstrap.min', 'bootstrap-responsive.min'));
+$this->load_js(array('jquery', 'bootstrap-dropdown', 'ajaxupload'));
+?>
+<script>
+$('.dropdown-toggle').dropdown()
+$(function(){
+	var button = $('#upload_input'), interval;		
+	new AjaxUpload(button, {
+		action: '<?=SITEPATH?>index.php?q=admin/ajax_upload.html', 
+		name: 'filedata',
+		onSubmit : function(file, ext){
+			this.disable();			
+		},			
+		onComplete: function(file, response){	
+			var json_str = eval("(" + response + ")");
+			if(json_str['err'] != "")
+			{
+				this.enable();
+				alert(json_str['err']);return;
+			}
+			window.clearInterval(interval);
+			this.enable();				
+			$('#logo').val(json_str['msg']);		
+		}
+	});
+})
+</script>
+</head>
 <body>
 <?
 $this->load_php('user/header');
 ?>
-<div id="MInn" class="Cauto">
-  <?
-  $this->load_php('user/lefter');
-  ?>
-  <div class="MnRight">
-    <div class="MnRt06">
-    <form action="" method="post" id="form1">
-      <div class="MnRt06Ct01">
-        <h2 class="InnTy01"><?=$this->p_lang['user'].$this->p_lang['data']?></h2>
-        <ul>
-          <li>
-           <?=$this->p_lang['password']?>1：
-            <input name="password" type="text" value="" /></li>
-          <li>
-            <?=$this->p_lang['password']?>2：
-            <input name="password2" type="text" value="" /></li>
-            <li><input name="" type="submit" value="<?=$this->p_lang['submit']?>" /></li>
-        </ul>
-      </div></form>
-    </div>
+<div class="container" style="max-width:1080px">
+<div class="row-fluid">
+  <div class="span2">
+  <p><h2>用户中心</h2></p>
+  <ul class="nav nav-pills nav-stacked">
+
+        <li class="active"><a href="<?=url(array('user', 'index'))?>"><?=$this->p_lang['welcome']?>：<?=$_COOKIE['user']['username']?></a></li>
+      <li><a href="<?=url(array('user', 'edit'))?>"><?=$this->p_lang['data'].$this->p_lang['manage']?></a></li>
+      <li><a href="<?=url(array('user', 'password'))?>"><?=$this->p_lang['password'].$this->p_lang['manage']?></a></li>
+	  <?
+		$level = array(1,2);
+		if(in_array($_COOKIE['user']['level'], $level))
+		{		
+	  ?>
+	  <li><a href="<?=url(array('user', 'news'))?>"><?=$this->p_lang['content'].$this->p_lang['manage']?></a></li>
+	  <li><a href="<?=url(array('user', 'news_add'))?>"><?=$this->p_lang['content'].$this->p_lang['add']?></a></li>
+	  <?
+	  }
+	  ?>
+      <!--<li><a href="<?=url(array('user', 'order'))?>"><?=$this->p_lang['business'].$this->p_lang['manage']?></a></li>
+      <li><a href="<?=url(array('user', 'money'))?>"><?=$this->p_lang['finance'].$this->p_lang['manage']?></a></li>
+      <li><a href="#">Discuz! X1.5 用户接口</a></li>
+      <li><a href="#">PHPwind API 用户接口</a></li>
+      <li><a href="#">新浪微博API用户接口</a></li>
+      <li>QQ微博API用户接口</li>-->
+      <li><a href="<?=url(array('home', 'logout'))?>"><?=$this->p_lang['logout']?></a></li>
+      </ul>
   </div>
+  <div class="span10" style="min-height:450px">
+        <p><h2><?=$this->p_lang['user'].$this->p_lang['info']?></h2></p><form action="" method="post">
+          <table class="table">
+  <tr>
+    <td class="span2"><?=$this->p_lang['user'].$this->p_lang['name']?></td>
+    <td class="span10"><?=$rs[0]['username']?></td>
+  </tr>
+  <tr>
+    <td><?=$this->p_lang['password']?>1</td>
+    <td><input name="password" type="text" value="" /></td>
+  </tr>
+  <tr>
+    <td><?=$this->p_lang['password']?>2</td>
+    <td><input name="password2" type="text" value="" /></td>
+  </tr>
+  <tr><td colspan="2" align="center">
+  <button type="submit" class="btn btn-primary btn-large" ><?=$this->p_lang['save']?></button>&nbsp;&nbsp;
+  <button class="btn btn-large" type="reset"><?=$this->p_lang['cancel']?></button>
+  </td></tr>
+</table>
+</form>
+  </div>
+
 </div>
- <?
-  $this->load_php('user/footer');
-  ?>
+<?
+$this->load_php('user/footer');
+?></div>
 </body>
 </html>

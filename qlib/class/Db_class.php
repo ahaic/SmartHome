@@ -15,7 +15,7 @@ class Db_class extends Db_base
 		static $sql_arr = array();		
 		if(!file_exists(LIB."site/config.php"))
 		{
-			echo '<script>window.location.href="install/index.php";</script>';
+			echo '<script>window.location.href="'.url(array('home', 'install')).'";</script>';
 			exit();
 		}
 		$this->_db_config = require LIB."site/config.php";

@@ -1,69 +1,42 @@
-<script type="text/javascript" src="{qcms:js_path}jquery.js"></script>
-<script type="text/javascript" src="{qcms:js_path}cookie.js"></script>
-<script>
-$(function(){
-	isLogin();
-	$('.buttonSearch').click(function(){
-		window.location.href='{qcms:path}home/search&keyword='+ $('#keyword').val() +'';
-	})
-})
+<div class="container" style="max-width:1080px">
+<p style="padding-top:20px;"><form class="navbar-search pull-right" action="">
+            <input type="text" id="search_txt" class="search-query span2" placeholder="Search">
+            <button type="button" id="search" class="btn btn-mini">Search</button>
+          </form> <img src="{qcms:logo}" /></p>
+<div class="navbar">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </a>
 
-function isLogin(){
-	$.get("{qcms:path}home/cookie_ajax&r="+ RndNum(4) +")",function(data){
-	if(data == '0'){
-		$("#login").html('帐号：<input name="username" id="username" type="text" /> 密码：<input name="password" type="text" id="password" /> <input name="" type="button" value="登录" id="login_button"  /> <input name="" type="button" value="注册" id="login_reg"  />');
-		$("#login_reg").bind("click", function(){
-			window.location.href="{qcms:path}home/reg";	
-		});
-		$("#login_button").bind("click", function(){
-			$.post("{qcms:path}home/login_ajax", {username : $("#username").val(), password : $("#password").val() }, function(data){
-				switch(data){		
-				case '0':
-				alert('请输入资料');
-				break;					
-				case '-1':
-				alert('登录失败');
-				break;
-				default:
-				$("#login").html('你好：<b style="color:#03C" id="kkk">'+ data +'</b>&nbsp;&nbsp;<a href="{qcms:path}user/index" target="_top">进入用户中心</a> &nbsp;&nbsp;<a href="{qcms:path}home/logout">退出</a>');
-				break;
-				}
-		   });
-		}); 
-	}else{
-		$("#login").html('你好：<b style="color:#03C" id="kkk">'+ data +'</b>&nbsp;&nbsp;<a href="{qcms:path}user/index" target="_top">进入用户中心</a> &nbsp;&nbsp;<a href="{qcms:path}home/logout">退出</a>');		
-	}	  
-	});	
-}
-
-</script>
-<div id="header">
-<div class="header_main">
-<div class="login" id="login">
-</div><!--顶部左侧登录模块-->
-<div class="note"><a href="javascript:window.external.AddFavorite('http://www.q-cms.cn','QCMS官方网')">加入收藏</a> | <a href="#" onClick="this.style.behavior='url(#default#homepage)';this.setHomePage('http://www.q-cms.cn')">设为首页</a> <img src="{qcms:skin}rss.jpg" width="37" height="14" align="absmiddle" /></div><!--顶部右侧收藏RSS-->
+        <div class="nav-collapse">
+          <ul class="nav">
+           {menu row=10}
+            <li class="active"><a href="{field:m_url}">{field:m_name}</a></li>
+           {/menu}
+          </ul>
+         
+          <ul class="nav pull-right" id="loginStr">
+            
+          </ul>
+        </div><!-- /.nav-collapse -->
+      </div>
+    </div><!-- /navbar-inner -->
+  </div>
 </div>
+<div class="container" style="max-width:1080px">
+<div id="myCarousel" class="carousel">
+  <!-- Carousel items -->
+  <div class="carousel-inner">
+    <div class="active item"><img src="{qcms:img_path}000.jpg" /></div>
+    <div class="item"><img src="{qcms:img_path}001.jpg" /></div>
+    <div class="item"><img src="{qcms:img_path}002.jpg" /></div>
+  </div>
+  <!-- Carousel nav -->
+  <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+  <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
 </div>
-<div id="logo_banner">
-<div class="logo"><img src="{qcms:skin}logo.jpg" width="179" height="50" /></div>
-<div class="banner"><img src="{qcms:skin}banner.jpg" width="746" height="56" /></div>
-</div>
-<div id="nva_main">
-<span id="nav_right"></span>
-
-<div id="search">
-<div class="search_right">
-<form  id="searchs" name="searchs" method="" action="">
-<input name="keyword" type="text" id="keyword" maxlength="50" /><label>
-  <input type="button" name="buttonSearch" id="button" class="buttonSearch" value=""/>
-</label>
-</form>
-</div>
-</div><div class="search_txt">搜索关键字：</div>
-
-<span id="nav_left"></span>
-<ul><!--导航标签-->
-{menu row=20}<li><a href="{field:m_url}">{field:m_name}</a></li>{/menu}
-</ul>
-
 </div>

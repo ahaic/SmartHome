@@ -35,8 +35,7 @@ class Mysql
 	
 	public function select($sql, $fetch = 0)
 	{			
-		//echo $sql.'<br>';
-		$ls = '';
+		$ls = array();
 		$result = @mysql_query($sql);
 		if($fetch == 1)
 		{

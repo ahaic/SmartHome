@@ -1,17 +1,21 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>友情链接管理</title>
+ <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
 <?
-$this->load_js('jquery');
-$this->load_css('admin_style');
+$this->load_css(array('bootstrap.min', 'bootstrap-responsive.min'));
+$this->load_js(array('jquery', 'bootstrap-dropdown'));
 ?>
 <script>
+$('.dropdown-toggle').dropdown()
 function del(i){
 	$.post('<?=url(array('admin', 'callback', 'links', 'index'))?>', {'id' : i, 'act' : 'del'}, function(data){
 		if(data == '1'){
-			alert('删除成功');
 			window.location.reload();	
 		}else{
 			alert('删除失败');
@@ -20,40 +24,62 @@ function del(i){
 }
 </script>
 </head>
-
 <body>
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-image:url(/static/images/bg3.gif);  background-repeat:repeat-x;  padding-left:   2px; padding-right:  2px; padding-bottom: 2px; margin-top:5px;  border:#dfdfdf solid 1px;">
-  <tr>
-    <td align="center"><p class="pagetitle">友情链接</p></td>
-  </tr>
-</table>
-<br />
-<table class="table" width="100%" border="0" cellspacing="0">
-<tr bgcolor="#F9F9F9"><td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;">名称</td>
-    <td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;">地址</td>
-    <td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;">操作</td>
-  </tr>
+<?
+  $this->load_php('admin/top');
+?>
+<div class="container-fluid">
+<div class="row-fluid">
+  <div class="span2">
   <?
-  foreach($linksArr as $k => $v){
+  $this->load_php('admin/menu');
   ?>
-  <form name="form_edit_<?=$k?>" action="" method="post"><tr bgcolor="#F9F9F9">
-    <td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"><input type="text" name="name" id="name" value="<?=$v[0]?>" />
-    <input name="act" type="hidden" id="act" value="edit" />
-    <input type="hidden" name="id" id="id" value="<?=$k?>" /></td>
-    <td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"><input type="text" name="link" id="link" value="<?=$v[1]?>" /></td> 
-    <td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"><a onclick="form_edit_<?=$k?>.submit()">修改</a>&nbsp;&nbsp;<a onclick="del(<?=$k?>)">删除</a></td>
-  </tr></form>
-  <?
-  }
-  ?>
-  <form name="form_add" action="" method="post"><tr bgcolor="#F9F9F9">
-    <td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;">
-    <input type="text" name="name" id="name" />
-    <input name="act" type="hidden" id="act" value="add" /></td>
-    <td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;">
-    <input type="text" name="link" id="link" /></td> 
-   <td   style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"><a onclick="form_add.submit()">添加</a></td>
-  </tr></form>
-</table>
+  </div>
+  <div class="span10">
+        <p><h2><a href="<?=url(array('admin', 'ext', 3))?>"><?=$this->p_module?><?=$this->p_lang['manage']?></a></h2></p>
+        <table class="table table-bordered">
+        <thead><tr>
+        <th class="span2">ID</th>
+        <th class="span6"><?=$this->p_lang['title']?></th>
+        <th class="span2"><?=$this->p_lang['handle']?></th>
+        </tr></thead>
+        <tbody>
+        <?
+        foreach($linksArr as $k => $v){
+		?>
+        <form name="form_edit_<?=$k?>" action="" method="post">
+        <tr>
+        <td><input type="text" name="name" id="name" value="<?=$v[0]?>" />
+        	<input name="act" type="hidden" id="act" value="edit" />
+    		<input type="hidden" name="id" id="id" value="<?=$k?>" />
+    	</td>
+        <td><input type="text" name="link" id="link" value="<?=$v[1]?>" /></td>
+        <td><div class="btn-group">
+  <a class="btn btn-primary" href="#"><i class="icon-th-list icon-white"></i> <?=$this->p_lang['handle']?></a>
+  <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+  <ul class="dropdown-menu">
+	<li><a onclick="form_edit_<?=$k?>.submit()" href="#"><i class="icon-pencil"></i> <?=$this->p_lang['edit']?></a></li>
+	<li><a onclick="del(<?=$k?>)" href="#"><i class="icon-trash"></i> <?=$this->p_lang['delete']?></a></li>
+  </ul>
+</div></td>
+        </tr>
+        </form>
+        <?
+		}
+		?>
+         <form name="form_add" action="" method="post">
+        <tr>        
+        <td>
+        <input type="text" name="name" id="name" />
+    	<input name="act" type="hidden" id="act" value="add" />
+        </td>
+        <td>
+        <input type="text" name="link" id="link" />
+        </td><td><a onclick="form_add.submit()" class="btn btn-primary" href="#"><i class="icon-th-list icon-white"></i>添加</a></td></tr></form>
+        </tbody>
+        </table>
+  </div>
+
+</div></div>
 </body>
 </html>

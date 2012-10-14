@@ -20,6 +20,8 @@ class Home extends Base
 		return;
 	}
 	
+	
+	
 	public function ext($eid)
 	{
 		if(empty($eid))
@@ -41,7 +43,7 @@ class Home extends Base
 			case 3:
 				$this->_temp = new Temp();
 				header("Content-Type: text/xml;");
-				$this->_temp->index($result[0]['einfo']);				
+				$this->_temp->other($result[0]['einfo']);				
 				break;
 			default:
 				echo 'Err!';
@@ -243,17 +245,21 @@ class Home extends Base
 	
 	public function reg()
 	{		
+		session_start();
 		if(!empty($_POST))
 		{
+			if(empty($_POST['veri']) || $_POST['veri'] != $_SESSION['authnum']){
+				exec_script('alert("验证码错误！");history.back();');return ;
+			}
 			if(empty($_POST['username']) || empty($_POST['password']))
 			{
-				exec_script('alert("'.$this->p_lang['save'].$this->p_lang['err'].'!");history.back();');return ;
+				exec_script('alert("用户名或密码不能为空!");history.back();');return ;
 			}
 			$this->_user_obj = $this->load_model('Q_User');
 			$rs = $this->_user_obj->select(array('username' => $_POST['username']));
 			if(!empty($rs))
 			{
-				exec_script('alert("'.$this->p_lang['save'].$this->p_lang['err'].'!");history.back();');return ;
+				exec_script('alert("用户已存在!");history.back();');return ;
 				return;
 			}
 			$insert = array('username' => $_POST['username'], 'password' => md5($_POST['password']), 'sex' => $_POST['sex'], 
@@ -262,15 +268,43 @@ class Home extends Base
 			$result = $this->_user_obj->insert($insert);
 			if(!$result)
 			{
-				exec_script('alert("'.$this->p_lang['save'].$this->p_lang['err'].'!");history.back();');return ;
+				exec_script('alert("注册失败!");history.back();');return ;
 			}
 			else
 			{
-				exec_script('window.location.href = "'.url(array('home', 'login')).'";');return;
+				exec_script('alert("注册成功，请登录!");window.location.href = "'.url(array('home', 'login')).'";');return;
 			}
 		}
 		$this->load_view('home/'.$this->p_site['tempdir'].'/reg');
 		return;
+	}
+	
+	public function ajaxreg(){
+		if(!empty($_POST))
+		{
+			if(empty($_POST['username']) || empty($_POST['password']))
+			{
+				echo 2;return ;
+			}
+			$this->_user_obj = $this->load_model('Q_User');
+			$rs = $this->_user_obj->select(array('username' => $_POST['username']));
+			if(!empty($rs))
+			{
+				echo 3;return ;
+			}
+			$insert = array('username' => $_POST['username'], 'password' => md5($_POST['password']), 'sex' => $_POST['sex'],
+					'email' => $_POST['email'], 'qq' => $_POST['qq'], 'tel' => $_POST['tel'], 'address' => $_POST['address'],
+					'add_time' => date('Y-m-d H:i:s'));
+			$result = $this->_user_obj->insert($insert);
+			if(!$result)
+			{
+				echo 0;return ;
+			}
+			else
+			{
+				echo 1;return;
+			}
+		}
 	}
 	
 	public function search()
@@ -340,22 +374,22 @@ class Home extends Base
 		{
 			if(empty($_POST['username']) || empty($_POST['password']) || empty($_POST['code']))
 			{
-				exec_script('alert("parameter err !");history.back();');return ;
+				exec_script('alert("用户名或者密码不能为空");history.back();');return ;
 			}
 			if($_POST['code'] != $this->p_site['code'])
 			{
-				exec_script('alert("code err !");history.back();');return ;
+				exec_script('alert("验证码错误");history.back();');return ;
 			}
 			$result = $user_obj->select(array('username' => $_POST['username'], 'password' => md5($_POST['password']), 'level' => array(1,2)));
 			if($result)
 			{
-				$this->p_login($result);
+				$this->p_login($result, 1);
 				exec_script('window.location.href="'.url(array('admin', 'index')).'"');return;
 			}
 			else
 			{
 				$this->p_logout();
-				exec_script('alert("Login err !");history.back();');return ;
+				exec_script('alert("登录失败");history.back();');return ;
 			}
 		}
 		$this->load_view('home/'.$this->p_site['tempdir'].'/admin_login');
@@ -363,6 +397,60 @@ class Home extends Base
 
 	public function err(){
 		$this->load_view('home/'.$this->p_site['tempdir'].'/err');
+	}
+	
+	public function install(){
+		if(file_exists('lock.txt')){
+			echo 'Install locked ! <a href="'.url(array('index')).'">go to webSite</a>';exit;
+		}
+		if(IS_SINA_APP){
+			
+		}
+		if(!empty($_POST)){
+			$sysInfo = unserialize(@file_get_contents(LIB.'config.qcms'));
+			$sysInfo['connect'] = md5(uniqid(rand(100,999)));
+			file_put_contents(LIB.'config.qcms', serialize($sysInfo));
+			$config = '';
+			if($_POST['dbDriver'] == '1'){
+				$link = @mysql_connect($_POST['mysqlHost'], $_POST['mysqlUsername'], $_POST['mysqlPassword']);
+				if (!$link) {
+					mysql_close($link);
+					echo '<script>alert("数据库连接失败");history.back();</script>';exit();
+				}
+				
+				$config .= "<?php return array('qcms' => array(
+				'db_driver' => 'Mysql',
+				'host' => '".$_POST['mysqlHost']."',
+				'username' => '".$_POST['mysqlUsername']."',
+				'password' => '".$_POST['mysqlPassword']."',
+				'db_name' => '".$_POST['mysqlName']."',
+				'db_port' => '3306',
+				'db_prefix' => '".$_POST['mysqlPrefix']."',
+				'charset' => 'utf8')
+				);?>";
+				$access = @file_put_contents(LIB.'site/config.php', $config);
+				if(!$access){
+					echo '<script>alert("程序没有权限，你修改权限后再安装！");window.location.href="'.url(array('index')).'";</script>';exit();
+				}
+				echo '<script>window.location.href="'.url(array('home', 'data_bakin')).'";</script>';exit();
+			}else{
+				$result = rename(LIB.'qcms.db3', LIB.$_POST['mysqlName'].'.db3');
+				if($result){
+					$db_name = $_POST['mysqlName'];
+				}else{
+					$db_name = 'qcms';
+				}
+				$config .= "<?php return array('qcms' => array(
+				'db_driver' => 'DB_Pdo',
+				'db_name' => '".$db_name."',
+				'db_prefix' => 'qcms_')
+				);?>";
+				file_put_contents(LIB.'site/config.php', $config);
+				file_put_contents('lock.txt', '');
+				echo '<script>alert("安装成功");window.location.href="'.url(array('index')).'";</script>';exit();
+			}
+		}
+		$this->load_php('plus/install');
 	}
 	
 	public function data_bakin()
@@ -397,6 +485,11 @@ class Home extends Base
 		$this->p_logout();
 		exec_script('window.location.href="'.SITEPATH.'"');return;
 	}
+	
+	public function ajax_logout(){		
+		$this->p_logout();
+		echo 1;
+	}
 
 	public function php()
 	{		
@@ -409,24 +502,37 @@ class Home extends Base
 	}	
 	
 	public function veri()
-	{
-		@header("Content-Type:image/png");   
-		session_start();  
-		$authnum = ''; 
-		$_SESSION['authnum'] = '';   		  
-		$str = "0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f,g,h,i,j,k,m,n,p,q,r,s,t,u,v,w,x,y,z,A,B,C,D,E,F,G,H,I,J,K,M,N,P,Q,R,S,T,U,V,W,X,Y,Z";    
-		$list = explode(",", $str);   
-		for($i=0; $i<4; $i++){   
-		    $randnum = rand(0, 57);   
-		    $authnum .= $list[$randnum]; 
-		}   
-		$_SESSION['authnum'] = strtolower($authnum);   
-		$im = imagecreate(80,25);
-  		$white = imagecolorallocate($im, 255,255,255);
-  		$black = imagecolorallocate($im, 0x00, 0x99, 0x33);	
-  		imagestring($im, 5, 25, 8, $authnum, $black);   		
-		imagepng($im);   
-		imagedestroy($im);  						
+	{		
+		session_start();
+		$_SESSION['authnum'] = '';
+		$img_width = 120;
+		$img_height = 24;
+		$new_number_str = '';
+		$y2 = 0;
+		
+		srand(microtime() * 100000);
+		for ($i=0; $i < 4; $i++) {
+			$new_number_str .= dechex(rand(1,15));
+		}
+		$_SESSION['authnum'] = strtolower($new_number_str);
+		$number_img=imageCreate($img_width,$img_height);
+		ImageColorAllocate($number_img,255,255,255);
+		for($i=0;$i<100;$i++) {
+			imagesetpixel($number_img, mt_rand(1,$img_width), mt_rand(1,$img_height), ImageColorallocate($number_img,mt_rand(0,255),mt_rand(0,255),mt_rand(0,255)));
+		}
+		for($i=1;$i<=50;$i++) {
+			imageString($number_img,1,mt_rand(1,$img_width),mt_rand(1,$img_height),"*",imageColorAllocate($number_img,mt_rand(200,255),mt_rand(200,255),mt_rand(200,255)));
+		}
+		for($i=0;$i<strlen($new_number_str);$i++) {
+			imageString($number_img, 5, $i*$img_width/strlen($new_number_str)+mt_rand(1,8), mt_rand(1,$img_height-15), $new_number_str[$i], imageColorAllocate($number_img, mt_rand(0,100), mt_rand(0,150), mt_rand(0,200)));
+		}
+		imageline($number_img, 0, 0, $img_width-1, 0, ImageColorallocate($number_img, 195, 195, 195));
+		imageline($number_img, $img_width-1, 0, $img_width-1, $img_height-1, ImageColorallocate($number_img, 195, 195, 195));
+		imageline($number_img, $img_width-1, $img_height-1, $y2, $img_height-1, ImageColorallocate($number_img, 195, 195, 195));
+		imageline($number_img, $y2, $img_height-1, 0, 0, ImageColorallocate($number_img, 195, 195, 195));
+		header("Content-type: image/png");
+		ImagePng($number_img);
+		ImageDestroy($number_img);
 	}
 	
 	public function err404(){

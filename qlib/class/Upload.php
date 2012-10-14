@@ -22,7 +22,12 @@ class Upload
 		{
 			return 2;
 		}
-		return self::_move_file($file_arr['tmp_name'], $ext);
+		if(IS_SINA_APP){
+			$s = isSInaApp();
+			return $s->upload(SINA_APP_DOMAIN, $this->_dir.$this->_name.'.'.$ext, $file_arr['tmp_name']);
+		}else{
+			return self::_move_file($file_arr['tmp_name'], $ext);
+		}		
 	}
 	
 	private function _move_file($file, $ext)

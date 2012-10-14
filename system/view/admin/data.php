@@ -1,34 +1,56 @@
-﻿<html>
+﻿<!DOCTYPE html>
+<html lang="en">
 <head>
-<link rel=stylesheet href="styles/advanced/style.css" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+ <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
 <?
-$this->load_js(array('jquery', 'xheditor-zh-cn.min'));
-$this->load_css('admin_style');
+$this->load_css(array('bootstrap.min', 'bootstrap-responsive.min'));
+$this->load_js(array('jquery', 'bootstrap-dropdown'));
 ?>
+<script>
+$('.dropdown-toggle').dropdown()
+</script>
 </head>
 <body>
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-image:url(<?=IMG_PATH?>bg3.gif);  background-repeat:repeat-x;  padding-left:   2px; padding-right:  2px; padding-bottom: 2px; margin-top:5px;  border:#dfdfdf solid 1px;">
-  <tr>
-    <td align="center"><p class="pagetitle"><?=$this->p_lang['data'].$this->p_lang['manage']?> [ <a href="<?=url(array('admin', 'data', 'backup'))?>"><u><?=$this->p_lang['backup']?></u></a> ]</p></td>
-  </tr>
-</table>
+<?
+  $this->load_php('admin/top');
+?>
+<div class="container-fluid">
+<div class="row-fluid">
+  <div class="span2">
+  <?
+  $this->load_php('admin/menu');
+  ?>
+  </div>
+  <div class="span10">
+        <p><h2><?=$this->p_lang['data'].$this->p_lang['center']?>&nbsp;&nbsp;<a href="<?=url(array('admin', 'data', 'backup'))?>"><?=$this->p_lang['backup']?></a></h2></p>
+        
 <br />
-<table class="table" width="100%" border="0" cellspacing="0">
+<table class="table table-bordered">
 <?
 $i = 0;
 foreach($dir_arr as $key => $val){
 	$i += 1;
 ?>
-		<tr bgcolor="#ffffff"><td style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"><?=$i?></td><td style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"><?=$val?></td><td style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"><a href="<?=url(array('admin', 'data', 'backin', $val))?>"><u><?=$this->p_lang['import']?></u></a></td></tr>
+<tr>
+	<td><?=$i?></td>
+    <td><?=$val?></td>
+    <td><a href="<?=url(array('admin', 'data', 'backin', $val))?>"><u><?=$this->p_lang['import']?></u></a></td>
+</tr>
 <?
 }
 ?>
-        </table>
-<br />
-<?
-$this->load_php('admin/footer');
-?>
+</table>
+        
+</div>
 
+</div></div>
+<?
+  $this->load_php('admin/footer');
+?>
 </body>
-</html>
+</html>        
