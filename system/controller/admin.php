@@ -2,7 +2,7 @@
 class Admin extends Base
 {
 	function __construct()	{
-		$this->plusArr = self::_plus();
+		
 		self::load_config();
 		self::_admin_login();
 		$this->_user_level = array($this->p_lang['level_user'] => '0', $this->p_lang['level_admin'] => '1', $this->p_lang['level_compile'] => '2', $this->p_lang['level_prevent'] => '-1');	
@@ -15,12 +15,21 @@ class Admin extends Base
 	public function plus($action = '')
 	{
 		if(empty($action)){
-			self::_plusin();
+			self::_plus();
 		}elseif($action == 'install'){
 			self::_install();
 		}elseif($action == 'uninstall'){
 			self::_uninstall();
 		}
+	}
+	
+	public function menu()
+	{		
+		$qcms = array();
+		$moduleObj = $this->load_model('Q_Module');
+		$qcms['rs'] = $moduleObj->select();
+		$this->load_php('admin/menu', $qcms);	
+	
 	}
 	
 	public function main()
@@ -29,45 +38,72 @@ class Admin extends Base
 		$this->load_php('admin/main',$qcms);
 	}
 	
-	public function help()
+	public function top()
 	{
-		$this->load_php('admin/help',$qcms);
+		$this->load_php('admin/top');
 	}
 	
 	public function basic()
 	{	
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level)){
+		if(!in_array($_COOKIE['user']['level'], $level))
+		{
 			echo 'No permission !';return;
-		}		
-		if(is_dir(LIB.'language')){
+		}
+		$l_id = empty($_GET['lang'])? 0 : $_GET['lang'];	
+		$mode = '';
+		switch($this->p_site['mode'])
+		{
+			case 1:
+				$mode = $this->p_lang['rewrite'];
+				break;
+			case 2:
+				$mode = $this->p_lang['py'].$this->p_lang['rewrite'];
+				break;
+			default:
+				$mode = 'PHP';
+		}	
+		if(is_dir(LIB.'language'))
+		{
 			$language = opendir(LIB.'language/');						
 		}
-		while (false !== ($file = readdir($language))) {
-			if($file != '.' && $file != '..' && $file != '.svn'){
+		$lang_arr = array($this->p_site['language'] => $this->p_site['language']);
+		while (false !== ($file = readdir($language))) 
+		{
+			if($file != '.' && $file != '..' && $file != '.svn')
+			{
 				$name = substr($file, 0, -4);
 				$lang_arr[$name] = $name;
 			}
 		}
 		closedir($language);
-		$qcms['menu'] = 1;
-		$qcms['langArr'] = $lang_arr;
-		$qcms['rs'] = $this->p_site;
+		$qcms['post_arr'] = array(
+			array('webname', 'input', $this->p_site['webname'], 200, $this->p_lang['webname'], '', 0),
+			array('keyword', 'input', $this->p_site['keyword'], 200, $this->p_lang['keyword'], '', 0),
+			array('email', 'input', $this->p_site['email'], 200, $this->p_lang['email'], '', 0),	
+			array('icp', 'input', $this->p_site['icp'], 200, $this->p_lang['icp'], '', 0),
+			array('count', 'text', stripslashes($this->p_site['count']), 400, $this->p_lang['count'], 50, 0),
+			array('cache_time', 'input', $this->p_site['cache_time'], 200, $this->p_lang['cache'].$this->p_lang['time'], '', 0),
+			array('mode', 'select', array($mode => $this->p_site['mode'], 'PHP' => 0, $this->p_lang['rewrite'] => 1, $this->p_lang['py'].$this->p_lang['rewrite'] => 2), 200, $this->p_lang['mode'], '', 0),
+			array('language', 'select', $lang_arr, 200, $this->p_lang['language'], '', 0),
+			array('code', 'input', $this->p_site['code'], 200, $this->p_lang['code'], '', 0),
+			array('tempdir', 'input', $this->p_site['tempdir'], 200, $this->p_lang['temp'].$this->p_lang['path'], '', 0),
+			array('infolen', 'input', $this->p_site['infolen'], 200, $this->p_lang['info'].$this->p_lang['length'], '', 0),
+			array('shorturl', 'input', $this->p_site['shorturl'], 200, $this->p_lang['shorturl'], '', 0),
+			array('veri', 'input', $this->p_site['veri'], 200, $this->p_lang['veri'], '', 0),
+			array('time_zone', 'input', $this->p_site['time_zone'], 200, $this->p_lang['time_zone'], '', 0),
+			array('connect', 'input', $this->p_site['connect'], 200, $this->p_lang['connect'], '', 0),
+		);
 		if(!empty($_POST))
 		{
-			$post = array();
-			foreach ($_POST as $k => $v){
-				$post[$k] = stripslashes($v);
-			}
-			if(IS_SINA_APP){
-				$s = isSInaApp();
-				$result = $s->write(SINA_APP_DOMAIN, 'config.qcms', serialize($post));
-			}else{
-				$result = $this->fp_write(serialize($post), LIB.'config.qcms');
-			}			
-			if(!$result){
+			$insert_arr = $this->post_verify($qcms['post_arr']);
+			$result = $this->fp_write(serialize($insert_arr), LIB.'config.qcms');
+			if(!$result)
+			{
 				exec_script('alert("'.$this->p_lang['config'].' sava err !");history.back();');return ;
-			}else{
+			}
+			else
+			{
 				exec_script('window.location.href = "'.url(array('admin', 'basic')).'";');
 			}
 		}	
@@ -81,19 +117,20 @@ class Admin extends Base
 	public function cache()
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
 		$cache = new Cache();
 		$cache->flush();
-		echo 1;
+		$temp['lang'] = $this->p_lang;
+		$this->load_php('admin/cache', $temp);
 	}
 	
 	public function data($type = '', $name = '')
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -137,7 +174,6 @@ class Admin extends Base
 				$dir_arr[] = $file;
 			}			
 		}
-		$qcms['menu'] = 2;
 		$qcms['dir_arr'] = $dir_arr;
 		$this->load_php('admin/data', $qcms);
 	}	
@@ -145,7 +181,7 @@ class Admin extends Base
 	public function cate()
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -156,7 +192,7 @@ class Admin extends Base
 	public function order()
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -172,13 +208,13 @@ class Admin extends Base
 	{		
 		$level = array(1);
 		
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
 		$form_obj = $this->load_model('Q_Form');
 		$form_rs = $form_obj->select(array('type' => 0), 'id, name, type', 0, 'id');
-		$form_rs[0] = array('id' => '0', 'name' => $this->p_lang['default'], 'type' => '0');
+		$form_rs[0] = array('id' => '0', 'name' => '默认', 'type' => '0');
 		ksort($form_rs);
 		$qcms['form_rs'] = $form_rs;
 		$qcms['cate_str'] = self::_cate_list(1);
@@ -231,13 +267,17 @@ class Admin extends Base
 	public function cate_edit($cid)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
+		if(empty($cid))
+		{
+			exec_script('alert("'.$this->p_lang['parameter'].$this->p_lang['err'].' !");history.back();');return ;
+		}
 		$form_obj = $this->load_model('Q_Form');
 		$form_rs = $form_obj->select(array('type' => 0), 'id, name, type', 0, 'id');
-		$form_rs[0] = array('id' => '0', 'name' => $this->p_lang['default'], 'type' => '0');
+		$form_rs[0] = array('id' => '0', 'name' => '默认', 'type' => '0');
 		ksort($form_rs);
 		$qcms['form_rs'] = $form_rs;
 		$qcms['title'] = $this->p_lang['class'].$this->p_lang['edit'];
@@ -292,7 +332,7 @@ class Admin extends Base
 	public function cate_del($cid)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -322,12 +362,11 @@ class Admin extends Base
 	public function news()
 	{
 		$level = array(1,2);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
 		$news_obj = $this->load_model('Q_News');
-		$cate_obj = $this->load_model('Q_Cate');
 		$count = '';
 		$offset = empty($_GET['p']) ? 0 : ($_GET['p']-1) * $this->p_num;
 		if(!empty($_GET['cid']))
@@ -335,10 +374,9 @@ class Admin extends Base
 			$this->_all_cid($_GET['cid']);
 			$cond_arr['cid'] = $this->_cid_all;
 		}
-		$qcms['cate'] = $cate_obj->select('', '', '*', 0, 'cid');
 		$qcms['rs'] = $news_obj->select_all($cond_arr, array($offset, $this->p_num), 'nid,ntitle,cid,ntime,nsort,type,outlink', $count);
+		$qcms['count'] = $count[0]['count'];
 		$qcms['cate_str'] = self::_cate_list(1);
-		$qcms['page'] = page_bar($count[0]['count'], $this->p_num);
 		$this->load_php('admin/news', $qcms);
 	}
 	
@@ -347,7 +385,7 @@ class Admin extends Base
 		session_start();
 		$cid = empty($_GET['cid']) ? $cid : $_GET['cid'];
 		$level = array(1,2);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -392,18 +430,18 @@ class Admin extends Base
 			'npy'		=>	$py,
 			'nsort'		=>	$_POST['nsort'],
 			'nfield'	=>	@serialize($_POST['nfield']),	
-			'uid'		=>	$_COOKIE['admin']['uid'],
+			'uid'		=>	$_COOKIE['user']['uid'],
 			'outlink'	=>	$outlink,	
 			'isimg'		=>	$isimg,
 			);			
 			$result = $news_obj->insert($insert_arr);
 			if(!$result)
 			{
-				self::_jump(array('admin', 'news_add', $cid), array('admin', 'news'), 1, $this->p_lang['add']);return ;
+				exec_script('alert("'.$this->p_lang['content'].' save err !");history.back();');return ;
 			}
 			else
 			{
-				self::_jump(array('admin', 'news_add', $cid), array('admin', 'news'), 0, $this->p_lang['add']);return ;
+				exec_script('window.location.href = "'.url(array('admin', 'news')).'";');
 			}
 		}
 		$this->load_php('admin/news_add', $qcms);
@@ -415,7 +453,7 @@ class Admin extends Base
 		$qcms['id'] = $id;
 		$cid = empty($_GET['cid']) ? $cid : $_GET['cid'];
 		$level = array(1,2);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -470,11 +508,11 @@ class Admin extends Base
 			$result = $news_obj->update($update_arr, array('nid' => $id));
 			if(!$result)
 			{
-				self::_jump(array('admin', 'news_edit', $id, $cid), array('admin', 'news'), 1, $this->p_lang['edit']);return ;
+				exec_script('alert("'.$this->p_lang['content'].' save err !");history.back();');return ;
 			}
 			else
 			{
-				self::_jump(array('admin', 'news_edit', $id, $cid), array('admin', 'news'), 0, $this->p_lang['edit']);return ;
+				exec_script('window.location.href = "'.url(array('admin', 'news')).'";');
 			}
 		}
 		$this->load_php('admin/news_edit', $qcms);
@@ -544,7 +582,7 @@ class Admin extends Base
 	public function news_del($id, $cid)//-- 0:单个操作，1:批量操作 --
 	{
 		$level = array(1,2);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -569,14 +607,13 @@ class Admin extends Base
 	private function _cate_list($type = 0, $cid = 0, $have_top = 0)
 	{
 		$cate_obj = $this->load_model('Q_Cate');
-		$formObj = $this->load_model('Q_Form');
-		$formRs = $formObj->select(array('type' => 0), '*', 0, 'id');
 		$have_js = '';
 		$cond_arr = array('pcid' => 0);
 		$result = $cate_obj->select($cond_arr, '', '*', '', '', array('csort' => 'ASC', 'cid' => 'ASC'));
 		$return_str = '';
 		$is_select = '';
-		$select_str = (empty($have_top)) ? '<option value="0">&nbsp;&nbsp;'.$this->p_lang['top'].$this->p_lang['classify'].'&nbsp;&nbsp;</option>' : '<option value="0">&nbsp;&nbsp;'.$this->p_lang['please'].$this->p_lang['select'].$this->p_lang['classify'].'&nbsp;&nbsp;</option>';
+		$select_str = (empty($have_top)) ? '<option value="0">&nbsp;&nbsp;'.$this->p_lang['top'].$this->p_lang['class'].'&nbsp;&nbsp;</option>' : '<option value="0">&nbsp;&nbsp;'.$this->p_lang['please'].$this->p_lang['class'].'&nbsp;&nbsp;</option>';
+		$td_style = ' style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"';
 		if(empty($result))
 		{
 			return;
@@ -593,19 +630,7 @@ class Admin extends Base
 			}
 			$select_str .= '<option value="'.$val['cid'].'" '.$is_select.'>&nbsp;&nbsp;'.$val['cname'].'&nbsp;&nbsp;</option>';
 			$select_str .= self::_sub_cate_list($val['cid'], $type, $cid);
-			
-			$extStr = '';
-			$extStr .= !empty($val['clinkture']) ? '&nbsp;&nbsp;<font color="#46a546">'.$this->p_lang['outside'].'</font>' : '&nbsp;&nbsp;<font color="#999999">'.$this->p_lang['outside'].'</font>';
-			$extStr .= !empty($val['con']) ? '&nbsp;<font color="#c3325f">'.$this->p_lang['show'].'</font>' : '&nbsp;<font color="#999999">'.$this->p_lang['show'].'</font>';
-			$moduleStr = empty($val['cfield']) ? $this->p_lang['news'] : $formRs[$val['cfield']]['name'];
-			$return_str .= '<tr>
-			<td>'.$val['cid'].'</td>
-			<td>'.$val['cname'].'<em>'.$extStr.'</em></td>
-			<td>'.$moduleStr.'</td>
-			<td>'.$val['ctemp'].'</td>
-			<td>'.$val['ctemp'].'</td>
-			<td><a href="'.url(array('admin', 'cate_edit', $val['cid'])).'">'.$this->p_lang['edit'].'</a> <a href="'.url(array('admin', 'cate_del', $val['cid'])).'">'.$this->p_lang['delete'].'</a></td>
-			<td>'.$val['csort'].'</td></tr>';
+			$return_str .= '<tr bgcolor="#F9F9F9"><td  '.$td_style.'>'.$val['cid'].'</td><td  '.$td_style.'>'.$val['cname'].'</td><td  '.$td_style.'><a href="'.url(array('admin', 'cate_edit', $val['cid'])).'">'.$this->p_lang['edit'].'</a> <a href="'.url(array('admin', 'cate_del', $val['cid'])).'">'.$this->p_lang['delete'].'</a></td><td '.$td_style.'>'.$val['csort'].'</td></tr>';
 			$return_str .= self::_sub_cate_list($val['cid'], $type, $cid);
 		}		
 		if($type == 1)
@@ -616,7 +641,7 @@ class Admin extends Base
 			}
 			return '<select name="cate" id="cate" '.$have_js.'>'.$select_str.'</select>';
 		}
-		return '<table class="table table-bordered"><thead><tr><th>ID</th><th>'.$this->p_lang['classify'].$this->p_lang['name'].'</th><th>'.$this->p_lang['model'].'</th><th>'.$this->p_lang['classify'].$this->p_lang['template'].'</th><th>'.$this->p_lang['content'].$this->p_lang['template'].'</th><th>'.$this->p_lang['handle'].'</th><th>'.$this->p_lang['sort'].'</th></tr></thead>'.$return_str.'</table>';
+		return '<table class="table" width="100%" border="0" cellspacing="0">'.$return_str.'</table>';
 	}
 	
 	private function _sub_cate_list($cid, $type = 0, $select_cid = 0, $html = '&nbsp;&nbsp;├&nbsp;&nbsp;')
@@ -625,11 +650,10 @@ class Admin extends Base
 		$select_str = '';
 		$is_select = '';
 		$cate_obj = $this->load_model('Q_Cate');
-		$formObj = $this->load_model('Q_Form');
-		$formRs = $formObj->select(array('type' => 0), '*', 0, 'id');
 		$cond_arr = array('pcid' => $cid);
 		$result = $cate_obj->select($cond_arr, '', '*', '', '', array('csort' => 'ASC', 'cid' => 'ASC'));
 		if(empty($result)) return ;
+		$td_style = ' style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 5px;padding-bottom: 5px;"';
 		$sub_html = '&nbsp;&nbsp;&nbsp;&nbsp;';
 		$sub_html .= $html;
 		foreach ($result as $key => $val)
@@ -644,19 +668,7 @@ class Admin extends Base
 			}
 			$select_str .= '<option value="'.$val['cid'].'" '.$is_select.'>&nbsp;&nbsp;'.$html.$val['cname'].'&nbsp;&nbsp;</option>';
 			$select_str .= self::_sub_cate_list($val['cid'], $type, $select_cid, $sub_html);
-			$extStr = '';
-			$extStr .= !empty($val['clinkture']) ? '&nbsp;&nbsp;<font color="#46a546">'.$this->p_lang['outside'].'</font>' : '&nbsp;&nbsp;<font color="#999999">'.$this->p_lang['outside'].'</font>';
-			$extStr .= !empty($val['con']) ? '&nbsp;<font color="#c3325f">'.$this->p_lang['show'].'</font>' : '&nbsp;<font color="#999999">'.$this->p_lang['show'].'</font>';
-			$moduleStr = empty($val['cfield']) ? $this->p_lang['news'] : $formRs[$val['cfield']]['name'];
-			$return_str .= '<tr>
-			<td>'.$val['cid'].'</td>
-			<td>'.$html.$val['cname'].'<em>'.$extStr.'</em></td>
-			<td>'.$moduleStr.'</td>
-			<td>'.$val['ctemp'].'</td>
-			<td>'.$val['ntemp'].'</td>
-			<td><a href="'.url(array('admin', 'cate_edit', $val['cid'])).'">'.$this->p_lang['edit'].'</a> <a href="'.url(array('admin', 'cate_del', $val['cid'])).'">'.$this->p_lang['delete'].'</a></td>
-			<td>'.$val['csort'].'</td>
-			</tr>';
+			$return_str .= '<tr bgcolor="#ffffff"><td '.$td_style.'>'.$val['cid'].'</td><td '.$td_style.'>'.$html.$val['cname'].'</td><td '.$td_style.'><a href="'.url(array('admin', 'cate_edit', $val['cid'])).'">'.$this->p_lang['edit'].'</a> <a href="'.url(array('admin', 'cate_del', $val['cid'])).'">'.$this->p_lang['delete'].'</a></td><td '.$td_style.'>'.$val['csort'].'</td></tr>';
 			$return_str .= self::_sub_cate_list($val['cid'], $type, $select_cid, $sub_html);
 		}
 		if($type == 1)
@@ -669,37 +681,54 @@ class Admin extends Base
 	public function user()
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
 		$count = '';
 		$user_obj = $this->load_model('Q_User');
-		$offset = empty($_GET['p']) ? 0 : ($_GET['p']-1) * $this->p_num;
+		$offset = empty($_GET['p']) ? 0 : ($_GET['p']-1) * $this->page_num;
 		$qcms['rs'] = $user_obj->select_all('', array($offset, $this->p_num), 'uid, username, level, sex, email, money, add_time', $count);
-		$qcms['menu'] = 3;
-		$qcms['page'] = page_bar($count[0]['count'], $this->p_num);
+		$qcms['count'] = $count[0]['count'];
 		$this->load_php('admin/user', $qcms);
 	}
 	
-	public function user_add(){		
+	public function user_add()
+	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level)){
+		if(!in_array($_COOKIE['user']['level'], $level))
+		{
 			echo 'No permission !';return;
 		}
-		$qcms['menu'] = 3;
-		if(!empty($_POST)){
-			$user_obj = $this->load_model('Q_User');	
-			$rs = $user_obj->select(array('username' => $_POST['username']));
-			if(!empty($rs))die('0');	
-			$_POST['password'] = md5($_POST['password']);
-			$result = $user_obj->insert($_POST);
-			if($result){
-				echo 1;
-			}else{
-				echo 0;
+		$qcms['rs'] = array(
+		array('username', 'input', '', 200, $this->p_lang['user'], '', 0),
+		array('password', 'password', '', 200, $this->p_lang['password'], '', 0),
+		array('sex', 'select', array($this->p_lang['boy'] => '0', $this->p_lang['girl'] => '1'), 200, $this->p_lang['sex'], '', 0),
+		array('email', 'input', '', 200, $this->p_lang['email'], '', 0),
+		array('qq', 'input', '', 200, $this->p_lang['qq'], '', 0),
+		array('tel', 'input', '', 200, $this->p_lang['tel'], '', 0),
+		array('address', 'input', '', 200, $this->p_lang['address'], '', 0),
+		array('money', 'input', 0, 200, $this->p_lang['money'], '', 0),
+		array('add_time', 'input', date('Y-m-d H:i:s'), 200, $this->p_lang['time'], '', 0),		
+		array('level', 'select', $this->_user_level, 200, $this->p_lang['user'], '', 0),
+		);
+		if(!empty($_POST))
+		{
+			$user_obj = $this->load_model('Q_User');			
+			$update_arr = $this->post_verify($qcms['rs']);
+			if(!$update_arr)
+			{
+				exec_script('alert("add is err");history.back();');return;
 			}
-			exit;
+			$result = $user_obj->insert($update_arr);
+			if(!$result)
+			{
+				exec_script('alert("'.$this->p_lang['user'].' sava err !");history.back();');return ;
+			}
+			else
+			{
+				exec_script('window.location.href = "'.url(array('admin', 'user')).'";');
+			}
 		}
 		$this->load_php('admin/user_add', $qcms);
 	}
@@ -707,8 +736,7 @@ class Admin extends Base
 	public function user_del($uid)
 	{
 		$level = array(1);
-		$qcms['menu'] = 3;
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -731,8 +759,7 @@ class Admin extends Base
 	public function user_edit($uid)
 	{
 		$level = array(1);
-		$qcms['menu'] = 3;
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -741,28 +768,40 @@ class Admin extends Base
 			exec_script('alert("'.$this->p_lang['parameter'].$this->p_lang['err'].' !");history.back();');return ;
 		}
 		$user_obj = $this->load_model('Q_User');
-		$rs = $user_obj->select(array('uid' => $uid), '', 'uid, username, password, sex, email, qq, tel, address, money, add_time, level');
-		$qcms['rs'] = $rs[0];
+		$result = $user_obj->select(array('uid' => $uid), '', 'username, password, sex, email, qq, tel, address, money, add_time, level');
+		foreach ($result[0] as $key => $val)
+		{//0:name,1:type,2:value,3:width,4:chinese,5:height,6:isnull
+			if($key == 'sex')
+			{
+				$sex_str = ($val == 0) ? $this->p_lang['boy'] : $this->p_lang['girl'];
+				$rs[] = array($key, 'select', array($sex_str => $val, $this->p_lang['boy'] => '0', $this->p_lang['girl'] => '1'), 200, $key, '', 0);
+			}
+			elseif($key == 'password')
+			{
+				$rs[] = array($key, 'input', '', 200, $key, '', 1);
+			}
+			else
+			{
+				$rs[] = array($key, 'input', $val, 200, $key, '', 0);
+			}			
+		}
+		$qcms['rs'] = $rs;
 		if(!empty($_POST))
 		{
-			$user_obj = $this->load_model('Q_User');	
-			$rs = array();
-			foreach ($_POST as $k => $v){
-				if($k == 'password'){
-					if(!empty($v)){
-						$rs[$k] = md5($v);
-					}
-				}else{
-					$rs[$k] = $v;
-				}				
+			$update_arr = $this->post_verify($qcms['rs']);
+			if(!$update_arr)
+			{
+				exec_script('alert("edit is err");history.back();');return;
 			}
-			$result = $user_obj->update($rs, array('uid' => $uid));
-			if($result){
-				echo 1;
-			}else{
-				echo 0;
+			$result = $user_obj->update($update_arr, array('uid' => $uid));
+			if(!$result)
+			{
+				exec_script('alert("'.$this->p_lang['user'].' sava err !");history.back();');return ;
 			}
-			exit;
+			else
+			{
+				exec_script('window.location.href = "'.url(array('admin', 'user_edit', $uid)).'";');
+			}
 		}
 		$this->load_php('admin/user_edit', $qcms);
 	}
@@ -770,64 +809,142 @@ class Admin extends Base
 	public function ext($type = 0)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
-		$qcms['type'] = $type;
+		$ext_name = '';
+		switch($type)
+		{
+			case 1:
+				$ext_name = $this->p_lang['page'];
+				break;
+			case 2:
+				$ext_name = 'JS';
+				break;
+			case 3:
+				$ext_name = 'XML';
+				break;
+			default:
+				$ext_name = $this->p_lang['tag'];
+				break;
+		}
+		$qcms['title'] = $ext_name;
 		$tag_obj = self::load_model('Q_Tag');
 		$qcms['rs'] = $tag_obj->select(array('etype' => $type), '', 'eid, etitle, etype');
+		$qcms['ext_name'] = $ext_name;
 		$this->load_php('admin/ext', $qcms);
 	}
 	
 	public function ext_add($type = 0)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
+		$ext_name = '';
+		switch($type)
+		{
+			case 1:
+				$ext_name = $this->p_lang['page'];
+				break;
+			case 2:
+				$ext_name = 'JS';
+				break;
+			case 3:
+				$ext_name = 'XML';
+				break;
+			default:
+				$ext_name = $this->p_lang['tag'];
+				break;
+		}
+		$qcms['title'] = $ext_name;
+		$ext_name = ($type == 1) ? $this->p_lang['page'] : 'JS';
 
-		$qcms['type'] = $type;
-
+		$qcms['rs'] = array(
+		array('etitle', 'input', '', 200, $this->p_lang['title'], '', 0),
+		array('einfo', 'editor', '', 600, $this->p_lang['content'], 400, 0),
+		);
 		if(!empty($_POST))
 		{
 			$tag_obj = $this->load_model('Q_Tag');			
-			$result = $tag_obj->insert(array('etitle' => $_POST['etitle'], 'einfo' => $_POST['einfo'], 'etype' => $type));
+			$update_arr = $this->post_verify($qcms['rs']);
+			if(!$update_arr)
+			{
+				exec_script('alert("add is err");history.back();');return;
+			}
+			$update_arr['etype'] = $type;
+			$result = $tag_obj->insert($update_arr);
 			if(!$result)
 			{
-				self::_jump(array('admin', 'ext_add', $type), array('admin', 'ext', $type), 1, $this->p_lang['add']);return ;
+				exec_script('alert("'.$this->p_lang['ext'].' sava err !");history.back();');return ;
 			}
 			else
 			{
-				self::_jump(array('admin', 'ext_add', $type), array('admin', 'ext', $type), 0, $this->p_lang['add']);return ;
+				exec_script('window.location.href = "'.url(array('admin', 'ext', $type)).'";');
 			}
-
 		}
+		$qcms['ext_name'] = $ext_name;
 		$this->load_php('admin/ext_add', $qcms);
 	}
 	
 	public function ext_edit($id, $type = 0)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
-		$tag_obj = $this->load_model('Q_Tag');
-		$result = $tag_obj->select(array('eid' => $id), '', 'eid, etitle, einfo');
-		$qcms['rs'] = $result[0];
-		$qcms['type'] = $type;
-		if(!empty($_POST))
+		if(empty($id))
 		{
-			$result = $tag_obj->update(array('etitle' => $_POST['etitle'], 'einfo' => $_POST['einfo']), array('eid' => $id));
-			if(!$result)
+			exec_script('alert("'.$this->p_lang['parameter'].$this->p_lang['err'].' !");history.back();');return ;
+		}
+		switch($type)
+		{
+			case 1:
+				$ext_name = $this->p_lang['page'];
+				break;
+			case 2:
+				$ext_name = 'JS';
+				break;
+			case 3:
+				$ext_name = 'XML';
+				break;
+			default:
+				$ext_name = $this->p_lang['tag'];
+				break;
+		}
+		$qcms['title'] = $ext_name;
+		$tag_obj = $this->load_model('Q_Tag');
+		$result = $tag_obj->select(array('eid' => $id), '', 'etitle, einfo');
+		foreach ($result[0] as $key => $val)
+		{//0:name,1:type,2:value,3:width,4:chinese,5:height,6:isnull
+			if($key == 'einfo')
 			{
-				self::_jump(array('admin', 'ext_edit', $id, $type), array('admin', 'ext', $type), 1, $this->p_lang['edit']);return ;
+				$rs[] = array($key, 'editor', $val, 600, $key, 400, 0);
 			}
 			else
 			{
-				self::_jump(array('admin', 'ext_edit', $id, $type), array('admin', 'ext', $type), 0, $this->p_lang['edit']);return ;
+				$rs[] = array($key, 'input', $val, 200, $key, '', 0);
+			}			
+		}
+		$qcms['rs'] = $rs;
+		if(!empty($_POST))
+		{
+			$update_arr = $this->post_verify($qcms['rs']);
+			if(!$update_arr)
+			{
+				exec_script('alert("edit is err");history.back();');return;
+			}
+			$result = $tag_obj->update($update_arr, array('eid' => $id));
+			if(!$result)
+			{
+				exec_script('alert("edit err !");history.back();');return ;
+			}
+			else
+			{
+				exec_script('window.location.href = "'.url(array('admin', 'ext', $type)).'";');
 			}
 		}
 		$this->load_php('admin/ext_edit', $qcms);
@@ -836,19 +953,30 @@ class Admin extends Base
 	public function ext_del($id, $type = 0)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
+		if(empty($id))
+		{
+			exec_script('alert("'.$this->p_lang['parameter'].$this->p_lang['err'].' !");history.back();');return ;
+		}
 		$tag_obj = $this->load_model('Q_Tag');
 		$result = $tag_obj->del(array('eid' => $id));
-		exec_script('window.location.href = "'.url(array('admin', 'ext', $type)).'";');
+		if(!$result)
+		{
+			exec_script('alert("del err !");history.back();');return ;
+		}
+		else
+		{
+			exec_script('window.location.href = "'.url(array('admin', 'ext', $type)).'";');
+		}
 	}
 	
 	public function temp()
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -865,13 +993,14 @@ class Admin extends Base
 			}			
 		}
 		$qcms['rs'] = $rs;
+		$qcms['manage_title'] = $this->p_lang['temp'].$this->p_lang['manage'];
 		$this->load_php('admin/temp', $qcms);
 	}
 	
 	public function temp_add()
 	{		
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -899,7 +1028,7 @@ class Admin extends Base
 	public function temp_edit($filename)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -907,11 +1036,15 @@ class Admin extends Base
 		{
 			exec_script('alert("'.$this->p_lang['parameter'].$this->p_lang['err'].' !");history.back();');return ;
 		}
-		$qcms['filename'] = $filename;
-		$qcms['temp_str'] = htmlentities(file_get_contents(BASEPATH.'view/home/'.$this->p_site['tempdir'].'/'.$filename.'.html'), ENT_COMPAT, 'utf-8');	
+		$qcms['rs'] = array(
+		array('name', 'input', $filename, 200, $this->p_lang['title'], '', 0),
+		array('temp_str', 'text', htmlentities(file_get_contents(BASEPATH.'view/home/'.$this->p_site['tempdir'].'/'.$filename.'.html'), ENT_COMPAT, 'utf-8'), 600, $this->p_lang['content'], 400, 0),
+		);		
+		$qcms['manage_title'] = $this->p_lang['temp'].$this->p_lang['edit'];
 		if(!empty($_POST))
 		{
-			$result = file_put_contents(BASEPATH.'view/home/'.$this->p_site['tempdir'].'/'.$filename.'.html', stripslashes($_POST['temp_str']), LOCK_EX);
+			$insert_arr = $this->post_verify($qcms['rs']);
+			$result = file_put_contents(BASEPATH.'view/home/'.$this->p_site['tempdir'].'/'.$insert_arr['name'].'.html', stripslashes($insert_arr['temp_str']), LOCK_EX);
 			if(!$result)
 			{
 				exec_script('alert("'.$this->p_lang['temp'].' edit err !");history.back();');return ;
@@ -921,13 +1054,13 @@ class Admin extends Base
 				exec_script('window.location.href = "'.url(array('admin', 'temp')).'";');return;
 			}
 		}
-		$this->load_php('admin/temp_edit', $qcms);
+		$this->load_php('admin/temp_add', $qcms);
 	}
 	
 	public function temp_del($filename)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -949,17 +1082,14 @@ class Admin extends Base
 	public function guest($gtype = 0)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
 		$count = '';
 		$gtype = empty($gtype) ? 0 : 1;
 		$guest_obj = $this->load_model('Q_Guest');
-		$userObj = $this->load_model('Q_User');
-		$offset = empty($_GET['p']) ? 0 : ($_GET['p']-1) * $this->p_num;
-		$uidArr = array();
-		$newsArr = array();
+		$offset = empty($_GET['p']) ? 0 : ($_GET['p']-1) * $this->page_num;
 		if($gtype == 0)
 		{
 			$fied = 'gid, gtitle, uid, gtype, gtime';	
@@ -971,33 +1101,14 @@ class Admin extends Base
 			$qcms['title'] = $this->p_lang['review'].$this->p_lang['manage'];
 		}
 		$qcms['rs'] = $guest_obj->select_all(array('gtype' => $gtype), array($offset, $this->p_num), $fied, $count);
-		foreach ($qcms['rs'] as $k => $v){
-			if(!empty($v['uid'])){
-				$uidArr[] = $v['uid'];
-			}				
-		}
-		$qcms['userRs'] = $userObj->select(array('uid' => $uidArr), '', 'uid, username', 0, 'uid');
 		$qcms['count'] = $count[0]['count'];
-		$qcms['page'] = page_bar($count[0]['count'], $this->p_num);
-		if(empty($gtype)){
-			$this->load_php('admin/guest', $qcms);		
-		}else{
-			foreach ($qcms['rs'] as $k => $v){
-				if(!empty($v['nid'])){
-					$newsArr[] = $v['nid'];
-				}
-			}
-			$newsObj = $this->load_model('Q_News');
-			$qcms['newsRs'] = $newsObj->select(array('nid' => $newsArr), '', 'nid, ntitle', 0, 'nid');
-			$this->load_php('admin/reply', $qcms);		
-		}
-		
+		$this->load_php('admin/guest', $qcms);		
 	}
 	
 	public function guest_edit($id, $gtype = 0)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -1008,11 +1119,26 @@ class Admin extends Base
 		$gtype = empty($gtype) ? 0 : 1;
 		$guest_obj = $this->load_model('Q_Guest');
 		$result = $guest_obj->select(array('gid' => $id), '', 'gtitle, ginfo');
-		$qcms['rs'] = $result;
-		$qcms['gtype'] = $gtype;
+		foreach ($result[0] as $key => $val)
+		{//0:name,1:type,2:value,3:width,4:chinese,5:height,6:isnull
+			if($key == 'ginfo')
+			{				
+				$rs[] = array($key, 'editor', $val, 600, $key, 400, 0);
+			}
+			else
+			{
+				$rs[] = array($key, 'input', $val, 200, $key, '', 0);
+			}			
+		}
+		$qcms['rs'] = $rs;
 		if(!empty($_POST))
 		{
-			$result = $guest_obj->update($_POST, array('gid' => $id));
+			$update_arr = $this->post_verify($qcms['rs']);
+			if(!$update_arr)
+			{
+				exec_script('alert("edit is err");history.back();');return;
+			}
+			$result = $guest_obj->update($update_arr, array('gid' => $id));
 			if(!$result)
 			{
 				exec_script('alert("'.$this->p_lang['user'].' sava err !");history.back();');return ;
@@ -1028,7 +1154,7 @@ class Admin extends Base
 	public function guest_del($id, $gtype = 0)
 	{
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -1052,12 +1178,17 @@ class Admin extends Base
 	public function forms($type = 0){
 		$level = array(1);
 		$qcms['type'] = $type;
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
+		if(!empty($type)){
+			$qcms['title'] = $this->p_lang['forms'].$this->p_lang['manage'];
+		}else{
+			$qcms['title'] = $this->p_lang['model'].$this->p_lang['manage'];
+		}		
 		$form_obj = $this->load_model('Q_Form');
-		$offset = empty($_GET['p']) ? 0 : ($_GET['p']-1) * $this->p_num;
+		$offset = empty($_GET['p']) ? 0 : ($_GET['p']-1) * $this->page_num;
 		$count = '';
 		$qcms['rs'] = $form_obj->select_all(array('type' => $type), array($offset, $this->p_num), 'id, name, type', $count);
 		$qcms['count'] = $count[0]['count'];
@@ -1066,7 +1197,7 @@ class Admin extends Base
 	
 	public function forms_add($type = 0){
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -1090,19 +1221,28 @@ class Admin extends Base
 				exec_script('window.location.href = "'.url(array('admin', 'forms', $type)).'";');
 			}
 		}
-			
+		if(empty($type)){
+			$qcms['title'] = $this->p_lang['model'].$this->p_lang['add'];
+		}else{
+			$qcms['title'] = $this->p_lang['forms'].$this->p_lang['add'];
+		}		
 		$qcms['type'] = $type;
 		$this->load_php('admin/forms_add', $qcms);	
 	}
 	
 	public function forms_edit($id = 0, $type = 0){
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
 		$form_obj = $this->load_model('Q_Form');
 		$qcms['rs'] = $form_obj->select(array('id' => $id));
+		if(empty($type)){
+			$qcms['title'] = $this->p_lang['model'].$this->p_lang['edit'];
+		}else{
+			$qcms['title'] = $this->p_lang['forms'].$this->p_lang['edit'];
+		}
 		if(!empty($_POST['field_info'][0]))
 		{
 			$i = 0;
@@ -1112,7 +1252,7 @@ class Admin extends Base
 				$i++;
 			}
 			$login = empty($_POST['login']) ? 0 : $_POST['login'];			
-			$result = $form_obj->update(array('field' => serialize($c_field), 'login' => $login, 'type' => $type), array('id' => $id));
+			$result = $form_obj->update(array('name' => $_POST['name'], 'field' => serialize($c_field), 'login' => $login, 'type' => $type), array('id' => $id));
 			if(!$result)
 			{
 				exec_script('alert("'.$this->p_lang['edit'].$this->p_lang['err'].'!");history.back();');return ;
@@ -1128,7 +1268,7 @@ class Admin extends Base
 	
 	public function forms_del($id = 0, $type = 0){
 		$level = array(1);
-		if(!in_array($_COOKIE['admin']['level'], $level))
+		if(!in_array($_COOKIE['user']['level'], $level))
 		{
 			echo 'No permission !';return;
 		}
@@ -1171,8 +1311,8 @@ class Admin extends Base
 	
 	
 	public function ajax_upload()
-	{		
-		if(empty($_FILES['filedata']))return msg('Uplod err');		
+	{
+		if(empty($_FILES['filedata']))return msg('Uplod err');
 		$err = '';
 		$msg = '';
 		$upload_obj = new Upload();
@@ -1180,16 +1320,16 @@ class Admin extends Base
 		switch($result)
 		{
 			case '1':
-				$err = $this->p_lang['upload'].$this->p_lang['type'].$this->p_lang['fail'];
+				$err = $this->p_lang['upload'].$this->p_lang['type'].$this->p_lang['err'];
 				break;
 			case '2':
 				$err = $this->p_lang['file'].$this->p_lang['too'].$this->p_lang['big'];
 				break;
 			case '3':
-				$err = $this->p_lang['write'].$this->p_lang['file'].$this->p_lang['fail'];
+				$err = $this->p_lang['write'].$this->p_lang['file'].$this->p_lang['err'];
 				break;
 			default:
-				$msg = $result;break;
+				$msg = $result;
 		}
 		echo json_encode(array('err'=>$err,'msg'=>$msg));
 	}
@@ -1235,26 +1375,18 @@ class Admin extends Base
 		$pic_obj->del(array('pid' => $pic_id));
 	}
 
-	private function _jump($yesArr = array(), $noArr = array(), $isErr = 0, $str = ''){
-		$qcms['yesUrl'] = url($yesArr);
-		$qcms['noUrl'] = url($noArr);
-		$qcms['isErr'] = $isErr;
-		$qcms['str'] = $str;
-		$this->load_php('admin/jump', $qcms);
-	}	
-	
 	private function _admin_login()
 	{
 		if((!empty($_REQUEST['api']) || $_REQUEST['api'] == $this->p_site['connect']) || $_COOKIE['api'] == $this->p_site['connect']){
 			setcookie ("api", $this->p_site['connect'], time() + 31536000, "/");
 			return;
-		}	
-		if(empty($_COOKIE['admin']['username']) || empty($_COOKIE['admin']['level']) || empty($_COOKIE['admin']['password']))
+		}
+		if(empty($_COOKIE['user']['username']) || empty($_COOKIE['user']['level']) || empty($_COOKIE['user']['password']))
 		{
 			exec_script('window.top.location.href="'.SITEPATH.'"');exit;
 		}
 		$user_obj = self::load_model('Q_User');	
-		$result = $user_obj->select(array('username' => $_COOKIE['admin']['username'], 'password' => $_COOKIE['admin']['password'], 'level' => $_COOKIE['admin']['level']));
+		$result = $user_obj->select(array('username' => $_COOKIE['user']['username'], 'password' => $_COOKIE['user']['password'], 'level' => $_COOKIE['user']['level']));
 		if(!$result)
 		{
 			exec_script('window.top.location.href="'.SITEPATH.'"');exit;
@@ -1288,10 +1420,6 @@ class Admin extends Base
 		return;
 	}
 	
-	private function _plusin(){
-		$this->load_php('admin/plus');
-	}
-	
 	private function _plus(){
 		$moduleObj = $this->load_model('Q_Module');
 		$rs = $moduleObj->select('', '', '*', 0, 'mtitle');
@@ -1301,6 +1429,7 @@ class Admin extends Base
 			if ($dh = opendir('module/')) {
 	        	while (($file = readdir($dh)) !== false) {
 	        		if($file != '.' && $file != '..' && $file != '.svn'){
+	        			//$qcms['plus'][] = $file;
 	        			if(!empty($rs[$file]['status'])){
 	        				$plusArr[$file] = 1;
 	        			}else{
@@ -1311,7 +1440,8 @@ class Admin extends Base
 	        	closedir($dh);
 	    	}								
 		}
-		return $plusArr;
+		$qcms['module'] = $plusArr;
+		$this->load_php('admin/plus', $qcms);
 	}
 	
 	private function _install(){

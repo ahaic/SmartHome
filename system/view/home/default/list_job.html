@@ -1,37 +1,59 @@
-<!DOCTYPE html>
-<html lang="en"><head>
-<title>{qcms:webname}</title>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-
- <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-<!--[if lt IE 9]>
-  <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-<![endif]-->
-<link href='{qcms:css_path}bootstrap.min.css' rel='stylesheet' type='text/css' />
-<link href='{qcms:css_path}bootstrap-responsive.min.css' rel='stylesheet' type='text/css' />
-<style>
-.line_heighe{ line-height:25px;}
-</style>
+<meta name="keywords" content="QCMS,QCMS ASP1.4SP2,QCMS ASP1.4 SP2版" />
+<meta name="description" content="QCMS ASP 1.4 SP2" />
+<meta http-equiv="X-UA-Compatible" content="IE=7" />
+<link href="{qcms:skin}css.css" rel="stylesheet" type="text/css" />
+<title>{qcms:cname}</title>
+<link href="css.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+var __aObj=document.getElementsByTagName("a");
+var __length=__aObj.length;
+for(var i=0;i<__length;i++){
+	__aObj[i].onfocus=function(){this.blur();}
+}
+</script>
 </head>
 <body>
 {include:header}
-<div class="container container-fluid" style="max-width:1080px">
-  <div class="row-fluid">
-    <div class="span3">
-      {include:lefter}
+<div id="conther">
+
+  <div id="bodyer">
+<div id="left">
+      <div class="ad"><strong>ASP.NET 1.0BETA 企业管理系统</strong><br>
+ 本版系统是QCMS ASP.NET 1.0,套装1.4 SP2模板风格,此风格是新的系统风格，以后ASP版和PHP版也将沿用此风格。 </div>
+      <div class="tp">
+        <h3>联系我们</h3>
+        <div class="links">开发地点：上海市徐家汇<br />
+支付宝：<a href="mailto:qesy@163.com">qesy@163.com</a><br />
+QQ：762264、66999174 </div>
+      </div>
     </div>
-    <div class="span9">
-      <p><h3>{qcms:cname}</h3></p>
-      	<table class="table">
-        {list row=15 page=1 time=1}
-        <tr>
-        <td><span class="pull-right"><em>{field:time}</em></span><a href="{field:url}">{field:title}</a></td>
-        </tr>
-        {/list}
-        <tr><td>{page}</td></tr>
-		</table>
+    <div id="all-right"><h4> 下载频道 </h4>
+      
+      <div class="pagelist"><ul>
+	  <script type="text/javascript"><!--
+google_ad_client = "pub-0131836077721671";
+/* 468x60, 创建于 11-8-24 */
+google_ad_slot = "8156465749";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+          {list row=20 page=1}
+          <li><a href="{field:url}">{field:title}</a>&nbsp;&nbsp;年龄:{field:age}&nbsp;&nbsp;月薪:{field:salary}&nbsp;&nbsp;人数:{field:num}&nbsp;&nbsp;{field:time}{/list}
+      </ul>
+        <div class="pages">{page}</div>
+      </div>
     </div>
+    
+
   </div>
-  {include:footer}
-</body>
-</html>
+
+</div>{include:footer}
+

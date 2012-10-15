@@ -1,13 +1,11 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 class links_module extends Base{
-	public $p_module;
 	function __construct(){
-		self::load_config();
 		$this->p_module = 'links';
 	}
 	public function index($id = 0){		
 		parent::hava_cookie();
-		$file = self::_get();		
+		$file = self::_get();
 		$linksArr = empty($file) ? array() : @unserialize(self::_get());
 		if(!empty($_POST)){
 			if($_POST['act'] == 'add'){
@@ -15,9 +13,9 @@ class links_module extends Base{
 				$linksStr = serialize($linksArr);
 				$result = self::_save($linksStr);
 				if($result){
-					exec_script('window.location.href="'.url(array('admin', 'callback', $this->p_module, 'index')).'";');
+					exec_script('alert(\'添加成功\');window.location.href="'.url(array('admin', 'callback', $this->p_module, 'index')).'";');
 				}else{
-					exec_script('history.back();');
+					exec_script('alert(\'添加成功\');history.back();');
 				}
 				return;
 			}
@@ -26,9 +24,9 @@ class links_module extends Base{
 				$linksStr = serialize($linksArr);
 				$result = self::_save($linksStr);
 				if($result){
-					exec_script('window.location.href="'.url(array('admin', 'callback', $this->p_module, 'index')).'";');
+					exec_script('alert(\'修改成功\');window.location.href="'.url(array('admin', 'callback', $this->p_module, 'index')).'";');
 				}else{
-					exec_script('history.back();');
+					exec_script('alert(\'修改成功\');history.back();');
 				}
 				return;
 			}

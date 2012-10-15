@@ -32,15 +32,15 @@ class DB_Pdo
 	}
 	
 	public function select($sql, $fetch = 0)
-	{			
-		$ls = array();
+	{	
+		$ls = '';
 		$result = self::$s_db_connection->query($sql);
 		if($fetch == 1)
 		{
 			$rs = $result->fetch(PDO::FETCH_ASSOC);
 		}else{
 			$rs = $result->fetchAll(PDO::FETCH_ASSOC);
-		}		
+		}
 		return $rs;
 	}
 	

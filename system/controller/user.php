@@ -4,13 +4,10 @@ class User extends Base
 	private $_user_level;
 	private $_user_obj;
 	public $head_rs;
-	protected $p_site;
-	public $logo;
 	function __construct()
 	{		
 		$this->_user_obj = $this->load_model('Q_User');
 		self::load_config();
-		$this->logo = $this->p_site['logo'];
 		$this->head_rs = $this->header();
 		$this->_user_level = array($this->p_lang['level_user'] => '0', $this->p_lang['level_admin'] => '1', $this->p_lang['level_compile'] => '2', $this->p_lang['level_prevent'] => '-1');
 		$this->_user_login();	
@@ -58,8 +55,8 @@ class User extends Base
 		}
 		$cond_arr['uid'] = $_COOKIE['user']['uid'];
 		$qcms['rs'] = $news_obj->select_all($cond_arr, array($offset, $this->p_num), 'nid,ntitle,cid,ntime,nsort,type,outlink', $count);
+		$qcms['count'] = $count[0]['count'];
 		$qcms['cate_str'] = self::_cate_list(1);
-		$qcms['page'] = page_bar($count[0]['count'], $this->p_num);
 		$this->load_php('user/news', $qcms);
 	}
 	
@@ -350,11 +347,10 @@ class User extends Base
 	
 	private function _user_login()
 	{
-		
 		if(empty($_COOKIE['user']['username']) || empty($_COOKIE['user']['password']))
 		{
 			exec_script('window.top.location.href="'.SITEPATH.'"');exit();
-		}		
+		}
 		$user_obj = self::load_model('Q_User');	
 		$result = $user_obj->select(array('username' => $_COOKIE['user']['username'], 'password' => $_COOKIE['user']['password'], 'level' => $_COOKIE['user']['level']));
 		if(!$result)
@@ -371,7 +367,7 @@ class User extends Base
 		$result = $cate_obj->select($cond_arr, '', '*', '', '', array('csort' => 'ASC', 'cid' => 'ASC'));
 		$return_str = '';
 		$is_select = '';
-		$select_str = (empty($have_top)) ? '<option value="0">&nbsp;&nbsp;'.$this->p_lang['top'].$this->p_lang['class'].'&nbsp;&nbsp;</option>' : '<option value="0">&nbsp;&nbsp;'.$this->p_lang['please'].$this->p_lang['select'].$this->p_lang['classify'].'&nbsp;&nbsp;</option>';
+		$select_str = (empty($have_top)) ? '<option value="0">&nbsp;&nbsp;'.$this->p_lang['top'].$this->p_lang['class'].'&nbsp;&nbsp;</option>' : '<option value="0">&nbsp;&nbsp;'.$this->p_lang['please'].$this->p_lang['class'].'&nbsp;&nbsp;</option>';
 		$td_style = ' style="font-size:12px;border-right-width: 1px;border-bottom-width: 1px;border-right-style: solid;border-bottom-style: solid;border-right-color: #cccccc;border-bottom-color: #cccccc;margin: 0px;padding-left: 10px;padding-top: 10px;padding-bottom: 10px;"';
 		if(empty($result))
 		{

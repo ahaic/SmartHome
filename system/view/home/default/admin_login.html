@@ -2,35 +2,62 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>登录</title>
-<link href="{qcms:css_path}bootstrap.min.css" rel="stylesheet" type="text/css" />
-<link href="{qcms:css_path}bootstrap-responsive.min.css" rel="stylesheet" type="text/css" />
-</head>
-<body>
-<div class="container-fluid" style="padding-top:200px;">
-  <div class="row-fluid">  
-    <div class="span4">
-&nbsp;
-    </div>
-    <div class="span4">
-    <p><h1><img src="{qcms:logo}"/></h1></p>
- <form method="post" action="" name="login">
-帐号&nbsp;：&nbsp;
-   <input name="username" class="input11" id="username" size=35 /><br>
-密码&nbsp;：&nbsp;
-   <input name="password" type="password" class="input11" id="password" size=42><br>
-代码&nbsp;：&nbsp;
-   <input size=42 name="code" type="password" class="input11" id="code"><br>
+<title>{lang:login}</title>
+<style>
+@charset "utf-8";
+body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre, 
+form,fieldset,input,textarea,p,blockquote,th,td { padding:0; margin:0; }
+body { background:#E4E4E4; color:#000; font-size:12px; font-family:Helvetica, Arial, sans-serif;}
+ol,ul { list-style:none;}
+img { border:none;}
+h1,h2,h3,h4,h5,h6 { font-weight: normal; font-size:100%;} 
+input { border:#CCC solid 1px;  font-family:Helvetica, Arial, sans-serif; padding:4px;}
+#login-box #logo {
+	margin-bottom:10px;
+	width:430px;
+	height:52px;
+	text-align: right;
+}
+#login-box #login_from { line-height:2em; margin-bottom:10px;}
+#login-box #login_from  #username,#password,#code { font-size:18px; width:100%;}
+#login-box #login { background:#2D7BB2; border:none; color:#FFF; width:54px; line-height:1.5em;}
+#login-box #login:hover { background:#5B605D; color:#FFF; text-decoration:none;}
+#login-box #inback { margin-top:}
+input:hover { border:#276fa2 solid 1px;
+background-color:#EDF4FE;}
 
-  <input  type="submit" value="&nbsp;登录&nbsp;" id="login" class="btn btn-large btn-primary" />&nbsp;
-  <input type="reset"  value="&nbsp;重置&nbsp;" id="login" class="btn btn-large" /> 
+</style>
+</head>
+
+<body>
+<div id="login-box" style="background:#FFF url({qcms:img_path}top-tpage.gif) no-repeat; margin:40px auto; padding:30px 56px; width:430px; height:350px;">
+ <div id="logo"><img src="{qcms:img_path}logo-login.gif" width="156" height="42" /></div>
+ <form method="post" action="" name="login">
+ <div id="login_from">
+  <h1><a>{lang:username}</a></h1>
+   <input name="username" class="input11" id="username" onfocus="this.className='input1-bor'" onblur="this.className='input1'" size=35 />
+  <h1><a>{lang:password}</a></h1>
+   <input name="password" type="password" class="input11" id="password" onFocus="this.className='input1-bor'" onBlur="this.className='input1'" size=42>
+  <h1><a>{lang:code}</a></h1>
+   <input size=42 name="code" type="password" class="input11" onBlur="this.className='input1'" onFocus="this.className='input1-bor'" id="code">
+ </div>
+ <div id="enter">
+  <input  type="submit" value="{lang:submit}" id="login" />
+  <input type="reset"  value="{lang:reset}" id="login" /> 
+ </div>
  </form>
- © Copyright 2008 - 2012 {qcms:copyright} v1.7.0 版权所有
-    </div>
-    <div class="span4">
-&nbsp;
-    </div>
-  </div>
+ <script type="text/javascript"><!--
+google_ad_client = "pub-0131836077721671";
+/* 468x60, 创建于 11-8-24 */
+google_ad_slot = "8156465749";
+google_ad_width = 468;
+google_ad_height = 60;
+//-->
+</script>
+<script type="text/javascript"
+src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+<center>{qcms:copyright}</center>
 </div>
 </body>
-</html>                
+</html>
