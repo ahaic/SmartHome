@@ -1,5 +1,5 @@
 
-wifi.py
+=============#wifi.py=============
 
 import network
 wlan = network.WLAN(network.STA_IF)
@@ -12,7 +12,7 @@ wlan.ifconfig()
 print(wlan)
 
 
-project.py
+=============#project.py=============
 
 # for esp8266  25 aug 2019 
 
