@@ -1,5 +1,3 @@
-# home assistant  
+# ioT 
 
-runing home-assistant on raspberry pi 
-
-experiment  notes 
+everything is online 
