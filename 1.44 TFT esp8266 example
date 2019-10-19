@@ -17,7 +17,7 @@ NC--
 LED--D4
 CLK--D5
 SDI--D7
-RS--D3
+RS(DC)--D3
 RST--D2
 CS--D1
 
